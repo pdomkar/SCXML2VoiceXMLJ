@@ -10,5 +10,7 @@ package cz.muni.fi.pb138.scxml2voicexmlj;
  * @author Petr
  */
 public class SCXML2VoiceXMLJ {
-    
+    public static void main(String args[]) {
+        
+    }
 }

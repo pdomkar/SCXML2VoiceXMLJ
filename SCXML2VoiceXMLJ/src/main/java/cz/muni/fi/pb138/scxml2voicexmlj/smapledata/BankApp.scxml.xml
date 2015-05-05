@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:my="http://scxml.example.org/" version="1.0" initial="getAccountNum" profile="ecmascript" >
+ 
+  <state id="getAccountNum">
+      <invoke targettype="vxml3" src="BankApp.vxml#getAccountNum" />
+      <transition event="vxml3.gotAccountNum" target="getBalance"/>
+  </state>
+ 
+  <state id="getBalance">
+      <datamodel>
+           <data name="method" expr="'getBalance'"/>
+           <data name="accountNum" expr="_data.accountNum"/>
+      </datamodel>
+      <send targettype="basichttp" target="BankDB.do" namelist="method accountNum" />
+      <transition event="basichttp.gotBalance" target="playingBalance"/>
+  </state>
+ 
+  <state id="playBalance">
+      <datamodel>
+           <data name="checking_balance" expr="_data.checking.balance" />
+           <data name="saving_balance" expr="_data.saving.balance" />
+      </datamodel>
+      <invoke targettype="vxml3" target="BankApp.vxml#playBalance" namelist="checking_balance saving_balance" />
+      <transition event="vxml3.playedBalance" target="exit" />
+  </state>
+ 
+  <final id="exit"/>
+</scxml>
