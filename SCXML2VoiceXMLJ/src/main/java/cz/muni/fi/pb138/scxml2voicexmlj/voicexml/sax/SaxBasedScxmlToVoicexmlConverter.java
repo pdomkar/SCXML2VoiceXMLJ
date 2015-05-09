@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.sax;
 
+import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.ScxmlToVoicexmlConverter;
 import java.io.InputStream;
 import java.util.Map;
 import javax.xml.parsers.SAXParser;

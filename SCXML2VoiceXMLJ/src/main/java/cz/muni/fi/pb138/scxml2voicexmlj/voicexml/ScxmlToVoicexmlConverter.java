@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.sax;
+package cz.muni.fi.pb138.scxml2voicexmlj.voicexml;
 
 import java.io.InputStream;
 import java.util.Map;
