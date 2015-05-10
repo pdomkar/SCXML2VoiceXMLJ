@@ -18,7 +18,14 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * This class should be only used once and then thrown away.
@@ -43,16 +50,33 @@ public class XsltBasedScxmlToVoicexmlConverter implements ScxmlToVoicexmlConvert
             appendGrammarReferences(document, srgsReferences);
             return render(document);
 
-        } catch (TransformerException | ParserConfigurationException e) {
+        } catch (TransformerException | ParserConfigurationException | XPathExpressionException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private void appendGrammarReferences(Document doc, Map<String, String> srgsReferences) {
-
+    public void appendGrammarReferences(Document doc, Map<String, String> srgsReferences) throws XPathExpressionException {
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        XPathExpression expr = xpath.compile("//field");
+        NodeList states = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+        for (int i = 0; i < states.getLength(); i++) {
+            Element field = (Element) states.item(i);
+            Element grammar = doc.createElement("grammar");
+            String name = field.getAttribute("name");
+            if (name == null || name.isEmpty()) {
+                throw new IllegalStateException("Unnamed field, cant assign grammar" + name);
+            }
+            String reference = srgsReferences.get(name);
+            if (reference == null || reference.isEmpty()) {
+                throw new IllegalStateException("Dont know grammar for field " + name);
+            }
+            grammar.setAttribute("type", "application/grammar+xml");
+            grammar.setAttribute("src", reference);
+            field.appendChild(grammar);
+        }
     }
 
-    private String render(Document document) throws TransformerException {
+    public String render(Document document) throws TransformerException {
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
         StreamResult result = new StreamResult(new StringWriter());
         DOMSource source = new DOMSource(document);
