@@ -21,13 +21,6 @@ public class SCXML2VoiceXMLJTest {
     public SCXML2VoiceXMLJTest() {
     }
     
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
 
     /**
      * Test of main method, if there is not too many arguments
@@ -35,7 +28,7 @@ public class SCXML2VoiceXMLJTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMainManyArugments() {
         System.out.println("Many arguments");
-        String[] args = {"first", "second", "third", "fourth"};
+        String[] args = {"-i", "first", "-v", "second", "-s", "third", "fourth"};
         SCXML2VoiceXMLJ.main(args);
     }
     
@@ -45,10 +38,12 @@ public class SCXML2VoiceXMLJTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMainLittleArugments() {
         System.out.println("Little arguments");
-        String[] args = {"first", "second"};
+        String[] args = {"-i", "first", "v", "second"};
         SCXML2VoiceXMLJ.main(args);
-        String[] args2 = {"first"};
+        String[] args2 = {"-i", "first"};
         SCXML2VoiceXMLJ.main(args2);
+        String[] args3 = {"-i"};
+        SCXML2VoiceXMLJ.main(args3);
     }
     
     /**
@@ -67,9 +62,9 @@ public class SCXML2VoiceXMLJTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMainContentFirstArgument() {
         System.out.println("Test first argument");
-        String[] args = {"input.txt", "output.vxml", "output2.grxml"};
+        String[] args = {"-i", "input.txt", "-v", "output.vxml", "-s", "output2.grxml"};
         SCXML2VoiceXMLJ.main(args);
-        String[] args2 = {"input.xml", "output.vxml", "output2.grxml"};
+        String[] args2 = {"-i", "input.xml", "-v", "output.vxml", "-s", "output2.grxml"};
         SCXML2VoiceXMLJ.main(args2);
     }
     
@@ -79,9 +74,9 @@ public class SCXML2VoiceXMLJTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMainContentSecondArgument() {
         System.out.println("Test second argument");
-        String[] args = {"input.scxml", "output.txt", "output2.grxml"};
+        String[] args = {"-i", "input.scxml", "-v", "output.txt", "-s", "output2.grxml"};
         SCXML2VoiceXMLJ.main(args);
-        String[] args2 = {"input.scxml", "output.xml", "output2.grxml"};
+        String[] args2 = {"-i", "input.scxml", "-v", "output.xml", "-s", "output2.grxml"};
         SCXML2VoiceXMLJ.main(args2);
     }
     
@@ -91,9 +86,9 @@ public class SCXML2VoiceXMLJTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMainContentThirdArgument() {
         System.out.println("Test third argument");
-        String[] args = {"input.scxml", "output.vxml", "output2.txt"};
+        String[] args = {"-i", "input.scxml", "-v", "output.vxml", "-s", "output2.txt"};
         SCXML2VoiceXMLJ.main(args);
-        String[] args2 = {"input.scxml", "output.vxml", "output2.xml"};
+        String[] args2 = {"-i", "input.scxml", "-v",  "output.vxml", "-s", "output2.xml"};
         SCXML2VoiceXMLJ.main(args2);
     }
     
