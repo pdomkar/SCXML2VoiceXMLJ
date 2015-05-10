@@ -5,6 +5,8 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml;
 
+import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.sax.ScxmlListener;
+import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.sax.ScxmlSaxHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.xml.parsers.ParserConfigurationException;

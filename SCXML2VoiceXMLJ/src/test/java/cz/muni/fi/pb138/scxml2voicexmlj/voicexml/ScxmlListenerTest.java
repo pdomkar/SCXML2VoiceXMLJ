@@ -5,6 +5,8 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml;
 
+import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.sax.ScxmlListener;
+import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.sax.StateModel;
 import java.util.Collection;
 import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;

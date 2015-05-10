@@ -3,16 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.muni.fi.pb138.scxml2voicexmlj.voicexml;
+package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.sax;
 
-import cz.muni.fi.pb138.scxml2voicexmlj.ScxmlToVoicexmlConverter;
+import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.ScxmlToVoicexmlConverter;
 import java.io.InputStream;
 import java.util.Map;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.helpers.DefaultHandler;
 
-class SaxBasedScxmlToVoicexmlConverter implements ScxmlToVoicexmlConverter {
+public class SaxBasedScxmlToVoicexmlConverter implements ScxmlToVoicexmlConverter {
 
     @Override
     public String convert(InputStream scxmlContent, Map<String, String> srgsReferences) {
