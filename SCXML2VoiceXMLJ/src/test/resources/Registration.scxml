@@ -1,70 +1,71 @@
-<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="Start">
+<?xml version="1.0"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:vxml="http://www.w3.org/2001/vxml" version="1.0" initial="Start">
     <datamodel>
           <data id="Grammar" expr="./registrace.grxml"/>
     </datamodel>  
     <state id="Start">
           <onentry>
-              <prompt>Vítejte v registraci předmětů</prompt>
+              <vxml:prompt>Vítejte v registraci předmětů</vxml:prompt>
           </onentry>
           <transition event="Credits" target="Credits" >
           </transition>
-          <transition event="Course,_credits" target="Course,_Credits" >
+          <transition event="Course.credits" target="Course-credits" >
           </transition>
           <transition event="All" target="All" >
           </transition>
-          <transition event="Credits,_finishing" target="Finishing,_credits" >
+          <transition event="Credits.finishing" target="Finishing-credits" >
           </transition>
-          <transition event="Course,_finishing" target="Course,_finishing" >
-          </transition>
-    </state>
-    <state id="Course">
-          <onentry>
-              <prompt>Zadejte název nebo kód předmětu.</prompt>
-          </onentry>
-          <transition event="Finishing" target="Course,_finishing" >
-          </transition>
-          <transition event="Credits" target="Course,_credits" >
+          <transition event="Course.finishing" target="Course-finishing" >
           </transition>
     </state>
     <state id="Credits">
           <onentry>
-              <prompt>Zadejte za kolik kreditů si chcete předmět zapsat</prompt>
+              <vxml:prompt>Zadejte za kolik kreditů si chcete předmět zapsat</vxml:prompt>
           </onentry>
-          <transition event="Course" target="Course,_Credits" >
+          <transition event="Course" target="Course-credits" >
           </transition>
-          <transition event="Finishing" target="Finishing,_credits" >
+          <transition event="Finishing" target="Finishing-credits" >
+          </transition>
+    </state>
+    <state id="Course">
+          <onentry>
+              <vxml:prompt>Zadejte název nebo kód předmětu.</vxml:prompt>
+          </onentry>
+          <transition event="Finishing" target="Course-finishing" >
+          </transition>
+          <transition event="Credits" target="Course-credits" >
           </transition>
     </state>
     <state id="Finishing">
           <onentry>
-              <prompt>Předmět <value expr="Course"/> vám byl zaregistrován</prompt>
+              <vxml:prompt>Předmět <value expr="Course"/> vám byl zaregistrován</vxml:prompt>
           </onentry>
-          <transition event="Course" target="Course,_finishing" >
+          <transition event="Course" target="Course-finishing" >
           </transition>
-          <transition event="Credits" target="Finishing,_credits" >
+          <transition event="Credits" target="Finishing-credits" >
           </transition>
     </state>
-    <state id="Course,_Credits">
+    <state id="Course-credits">
           <onentry>
-              <prompt>Zadejte způsob ukončení</prompt>
+              <vxml:prompt>Zadejte způsob ukončení</vxml:prompt>
           </onentry>
           <transition event="Finishing" target="All" >
           </transition>
     </state>
     <state id="All">
           <onentry>
-              <prompt>Zadal jste <value expr="Course"/>, ukončený <value expr="Finishing"/> za <value expr="Credits"/> kreditů. Souhlasíte</prompt>
+              <vxml:prompt>Zadal jste <value expr="Course"/>, ukončený <value expr="Finishing"/> za <value expr="Credits"/> kreditů. Souhlasíte</vxml:prompt>
           </onentry>
           <transition event="No" target="Start" >
           </transition>
           <transition event="Yes" target="Submit" >
           </transition>
     </state>
-    <state id="Finishing,_credits">
+    <state id="Finishing-credits">
           <transition event="Finishing" target="All" >
           </transition>
     </state>
-    <state id="Course,_finishing">
+    <state id="Course-finishing">
           <transition event="Credits" target="All" >
           </transition>
     </state>
