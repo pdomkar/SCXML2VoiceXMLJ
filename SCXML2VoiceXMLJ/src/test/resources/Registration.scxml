@@ -7,68 +7,48 @@
           <onentry>
               <vxml:prompt>Vítejte v registraci předmětů</vxml:prompt>
           </onentry>
-          <transition event="Credits" target="Credits" >
-          </transition>
-          <transition event="Course.credits" target="Course-credits" >
-          </transition>
-          <transition event="All" target="All" >
-          </transition>
-          <transition event="Credits.finishing" target="Finishing-credits" >
-          </transition>
-          <transition event="Course.finishing" target="Course-finishing" >
-          </transition>
-    </state>
-    <state id="Credits">
-          <onentry>
-              <vxml:prompt>Zadejte za kolik kreditů si chcete předmět zapsat</vxml:prompt>
-          </onentry>
-          <transition event="Course" target="Course-credits" >
-          </transition>
-          <transition event="Finishing" target="Finishing-credits" >
-          </transition>
-    </state>
-    <state id="Course">
-          <onentry>
-              <vxml:prompt>Zadejte název nebo kód předmětu.</vxml:prompt>
-          </onentry>
-          <transition event="Finishing" target="Course-finishing" >
-          </transition>
-          <transition event="Credits" target="Course-credits" >
-          </transition>
+          <onexit>
+              <vxml:assign name="Start" expr="true"/>
+          </onexit>
+          <transition event="All" target="All" />
+          <transition event="Course" target="Finishing" />
+          <transition event="Finishing" target="Cours" />
     </state>
     <state id="Finishing">
           <onentry>
-              <vxml:prompt>Předmět <value expr="Course"/> vám byl zaregistrován</vxml:prompt>
+              <vxml:prompt>Zadejte způsob ukončení.</vxml:prompt>
+              <vxml:prompt count="2">Možnosti jsou zkouška nebo zápočet.</vxml:prompt>
           </onentry>
-          <transition event="Course" target="Course-finishing" >
-          </transition>
-          <transition event="Credits" target="Finishing-credits" >
-          </transition>
+          <datamodel>
+            <data id="Finishing" expr="./registration.grxml#ukonceni"/>
+          </datamodel>
+          <transition event="Finishing" target="All"/>
     </state>
-    <state id="Course-credits">
+    <state id="Course">
           <onentry>
-              <vxml:prompt>Zadejte způsob ukončení</vxml:prompt>
+              <vxml:prompt>Zadejte registrovaný předmět.</vxml:prompt>
+
+              <vxml:prompt count="2">Lze si zaregistrovat předměty PB095, PB125, PB162 nebo PA156.</vxml:prompt>
           </onentry>
-          <transition event="Finishing" target="All" >
-          </transition>
+          <datamodel>
+           <data id="Course" expr="./registration.grxml#predmet"/>
+          </datamodel>
+          <transition event="Course" target="All"/>
     </state>
     <state id="All">
           <onentry>
-              <vxml:prompt>Zadal jste <value expr="Course"/>, ukončený <value expr="Finishing"/> za <value expr="Credits"/> kreditů. Souhlasíte</vxml:prompt>
+              <vxml:prompt>Zadal jste <vxml:value expr="Course"/>, ukončený <vxml:value expr="Finishing"/>. Souhlasíte?</vxml:prompt>
+              <vxml:prompt count="2">Ano nebo ne?</prompt>
           </onentry>
-          <transition event="No" target="Start" >
-          </transition>
-          <transition event="Yes" target="Submit" >
-          </transition>
-    </state>
-    <state id="Finishing-credits">
-          <transition event="Finishing" target="All" >
-          </transition>
-    </state>
-    <state id="Course-finishing">
-          <transition event="Credits" target="All" >
-          </transition>
+          <datamodel>
+           <data id="yesno" expr="./registration.grxml#anone"/>
+          </datamodel>
+          <transition event="ne" target="Start" />
+          <transition event="ano" target="Submit" />
     </state>
     <final id="Submit">
+      <onentry>
+        <vxml:submit src="uri" namelist="Course Finishing"/>
+      </onentry>
     </final>
 </scxml>
