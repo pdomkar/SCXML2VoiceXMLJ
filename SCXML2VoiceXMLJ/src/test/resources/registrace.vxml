@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vxml xmlns="http://www.w3.or/2001/vxml" version="2.0">
+ <form id="main">
+   <grammar src="registrace.grxml" />
+   <initial name="Start">
+    <prompt>Vítejte v registraci předmětů</prompt>
+    <filled>
+       <assign name="Start" expr="true"/>
+    </filled>
+    <nomatch count="3">
+        <assign name="Start" expr="true"/>
+    </nomatch>
+    <noinput count="3">
+       <exit/>
+    </noinput>
+   </initial>
+   <field name="Course">
+    <prompt>Zadejte registrovaný předmět.</prompt>
+    <prompt count="2">Lze si zaregistrovat předměty PB095, PB125, PB162 nebo PA156.</prompt>
+    <grammar src="./registration.grxml#predmet"/>
+    <nomatch count="3">
+      <exit/>
+    </nomatch>
+    <noinput count="3">
+      <exit/>
+    </noinput>
+   </field>
+   <field name="Finishing">
+     <prompt>Zadejte způsob ukončení.</prompt>
+     <prompt count="2">Možnosti jsou zkouška nebo zápočet.</prompt>
+     <grammar src="./registration.grxml#ukonceni"/>
+     <nomatch count="3">
+      <exit/>
+     </nomatch>
+     <noinput count="3">
+      <exit/>
+     </noinput>
+   </field>
+   <field name="All">
+     <prompt>Zadal jste <value expr="Course"/> ukončený <value expr="Finishing"/>. Souhlasíte?</prompt>
+     <prompt>Ano nebo ne?</prompt>
+     <grammar src="./registration.grxml#anone"/>
+     <filled>
+       <if expr="All=='ano'>
+        <goto next="Submit"/>
+       <else/>
+        <clear namelist="Start Course Finishing All"/>
+     </filled>
+   </field>
+   <field name="Submit">
+     <submit src="uri" namelist="Course Finishing"/>
+   </field>
+ </form>
+</vxml>
