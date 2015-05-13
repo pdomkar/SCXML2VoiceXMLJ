@@ -48,4 +48,10 @@
    <item>zapocet</item>
   </one-of>
  </rule>
+ <rule id="anone">
+   <one-of>
+    <item>ano</item>
+    <item>ne</item>
+   </one-of>
+ </rule>
 </grammar>
