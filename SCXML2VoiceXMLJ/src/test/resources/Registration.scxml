@@ -12,7 +12,7 @@
           </onexit>
           <transition event="All" target="All" />
           <transition event="Course" target="Finishing" />
-          <transition event="Finishing" target="Cours" />
+          <transition event="Finishing" target="Course" />
     </state>
     <state id="Finishing">
           <onentry>

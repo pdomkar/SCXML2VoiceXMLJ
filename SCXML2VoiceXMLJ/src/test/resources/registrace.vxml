@@ -38,10 +38,10 @@
    </field>
    <field name="All">
      <prompt>Zadal jste <value expr="Course"/> ukončený <value expr="Finishing"/>. Souhlasíte?</prompt>
-     <prompt>Ano nebo ne?</prompt>
+     <prompt count="2">Ano nebo ne?</prompt>
      <grammar src="./registration.grxml#anone"/>
      <filled>
-       <if expr="All=='ano'>
+       <if expr="All=='ano'">
         <goto next="Submit"/>
        <else/>
         <clear namelist="Start Course Finishing All"/>
