@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -28,9 +30,15 @@ import static org.junit.Assert.*;
 public class SrgsImplTest {
     @Test
     public void testGetSrgsReferences() throws FileNotFoundException, TransformerConfigurationException, TransformerException {
-        /*InputStream in = new FileInputStream("src/test/resources/Card.vxml");
+        InputStream in = new FileInputStream("src/test/resources/Registration.scxml");
+        Map<String,String> correctReferences = new HashMap();
+        correctReferences.put("Grammar", "<grammar src=\"registrace.grxml\"/>");
+        correctReferences.put("Finishing", "<grammar src=\"./registration.grxml#ukonceni\"/>");
+        correctReferences.put("Course", "<grammar src=\"./registration.grxml#predmet\"/>");
+        correctReferences.put("All", "<grammar src=\"./registration.grxml#anone\"/>");
+        
         Srgs srgs = new SrgsImpl();
-        srgs.getSrgsReferences(in, "src/test/resources/Card_inline-gramars.grxml");*/
-        // ...TODO
+        Map<String,String> references = srgs.getSrgsReferences(in);
+        if (!references.equals(correctReferences)) fail();
     }
 }

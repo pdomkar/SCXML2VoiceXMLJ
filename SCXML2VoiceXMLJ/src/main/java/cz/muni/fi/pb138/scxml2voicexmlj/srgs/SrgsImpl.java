@@ -25,7 +25,7 @@ import org.xml.sax.SAXException;
  * @author petr
  */
 public class SrgsImpl implements Srgs {
-    public Map<String,String> getSrgsReferences(InputStream scxmlContent, String grxmlFileName) {
+    public Map<String,String> getSrgsReferences(InputStream scxmlContent) {
         Map<String,String> result = new HashMap<String,String>();
 
         //...
