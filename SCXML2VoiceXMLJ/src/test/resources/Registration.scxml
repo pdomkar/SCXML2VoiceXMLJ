@@ -38,7 +38,7 @@
     <state id="All">
           <onentry>
               <vxml:prompt>Zadal jste <vxml:value expr="Course"/>, ukončený <vxml:value expr="Finishing"/>. Souhlasíte?</vxml:prompt>
-              <vxml:prompt count="2">Ano nebo ne?</prompt>
+              <vxml:prompt count="2">Ano nebo ne?</vxml:prompt>
           </onentry>
           <datamodel>
            <data id="yesno" expr="./registration.grxml#anone"/>
