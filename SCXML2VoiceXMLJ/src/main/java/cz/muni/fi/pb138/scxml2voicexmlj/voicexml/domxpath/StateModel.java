@@ -3,10 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.sax;
+package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.domxpath;
+
+import java.util.List;
+import org.w3c.dom.Element;
 
 public class StateModel {
 
     private String id;
+    private List<Element> prompts;
 
 }

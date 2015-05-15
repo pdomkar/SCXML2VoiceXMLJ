@@ -6,23 +6,32 @@
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.domxpath;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GraphNode {
 
-    private List<GraphNode> pathTo = new ArrayList<>();
+    private String name;
+    private List<GraphNode> pathsTo = new ArrayList<>();
+
+    public GraphNode(String name) {
+        this.name = name;
+    }
+
+    public String name() {
+        return name;
+    }
 
     public void addPathTo(GraphNode node) {
-        pathTo.add(node);
+        pathsTo.add(node);
     }
 
     public boolean hasPathTo(GraphNode other) {
-        return pathTo.contains(other);
+        return pathsTo.contains(other);
     }
 
-    @Override
-    public String toString() {
-        return "<" + (System.identityHashCode(this) % 100) + ": " + pathTo + ">";
+    List<GraphNode> allPaths() {
+        return Collections.unmodifiableList(pathsTo);
     }
 
 }

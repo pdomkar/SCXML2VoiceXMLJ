@@ -5,8 +5,8 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml;
 
+import cz.muni.fi.pb138.scxml2voicexmlj.GrammarReference;
 import java.io.InputStream;
-import java.util.Map;
 
 public interface ScxmlToVoicexmlConverter {
 
@@ -15,6 +15,6 @@ public interface ScxmlToVoicexmlConverter {
      * @param srgsReferences map from state names to references inserted into the voicexml output
      * @return content of the {@code scxmlContent} in the voicexml format
      */
-    String convert(InputStream scxmlContent, Map<String, String> srgsReferences);
+    String convert(InputStream scxmlContent, GrammarReference srgsReferences);
 
 }
