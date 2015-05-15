@@ -58,7 +58,6 @@ public class XsltBasedScxmlToVoicexmlConverterTest {
         grammarReferences.put("someField", "grammar");
         conv.appendGrammarReferences(doc, grammarReferences);
         String result = conv.render(doc);
-        System.out.println(result);
         Pattern pattern = Pattern.compile(".*?<field name=\"someField\">.*?<grammar src=\"grammar\" type=\"application\\/grammar\\+xml\"\\/>.*", Pattern.DOTALL);
         assertTrue(pattern.matcher(result).matches());
     }
