@@ -6,11 +6,12 @@
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.domxpath;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class GraphHelper {
 
-    public static List<GraphNode> orderedTopologically(List<GraphNode> nodes) {
+    public static List<GraphNode> orderedTopologically(Collection<GraphNode> nodes) {
         List<GraphNode> nodesLeft = new ArrayList<>(nodes);
         List<GraphNode> nodesOrdered = new ArrayList<>(nodes.size());
         while (!nodesLeft.isEmpty()) {

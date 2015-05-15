@@ -13,10 +13,10 @@ public class GraphHelperTest {
 
     @Test
     public void testOrderedTopologically() {
-        GraphNode n1 = new GraphNode();
-        GraphNode n2 = new GraphNode();
-        GraphNode n3 = new GraphNode();
-        GraphNode n4 = new GraphNode();
+        GraphNode n1 = new GraphNode(null);
+        GraphNode n2 = new GraphNode(null);
+        GraphNode n3 = new GraphNode(null);
+        GraphNode n4 = new GraphNode(null);
         n1.addPathTo(n2);
         n1.addPathTo(n4);
         n2.addPathTo(n3);
@@ -27,9 +27,9 @@ public class GraphHelperTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testOrderedTopologicallyWithCycle() {
-        GraphNode n1 = new GraphNode();
-        GraphNode n2 = new GraphNode();
-        GraphNode n3 = new GraphNode();
+        GraphNode n1 = new GraphNode(null);
+        GraphNode n2 = new GraphNode(null);
+        GraphNode n3 = new GraphNode(null);
         n1.addPathTo(n2);
         n2.addPathTo(n3);
         n3.addPathTo(n1);

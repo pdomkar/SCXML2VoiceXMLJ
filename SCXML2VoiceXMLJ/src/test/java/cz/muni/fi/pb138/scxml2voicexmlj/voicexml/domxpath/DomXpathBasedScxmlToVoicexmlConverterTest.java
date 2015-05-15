@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.domxpath;
 
+import cz.muni.fi.pb138.scxml2voicexmlj.GrammarReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,9 +17,10 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 public class DomXpathBasedScxmlToVoicexmlConverterTest {
 
@@ -31,7 +33,7 @@ public class DomXpathBasedScxmlToVoicexmlConverterTest {
 
     @Test
     public void testFindStates() throws Exception {
-        Document doc = parseRegistrationScxmlFile();
+        Document doc = parseFile("/Registration.scxml");
         List<Element> states = conv.findStates(doc);
         assertThat(extractAttributes(states, "id")).containsOnly("Start", "Finishing", "Course", "All", "Submit");
     }
@@ -62,17 +64,16 @@ public class DomXpathBasedScxmlToVoicexmlConverterTest {
 
     @Test
     public void testExtractTransitions() {
-        Document doc = parseRegistrationScxmlFile();
-        NodeList stateList = conv.executeXpath(doc, "//state[@id='Start']");
-        Element state = conv.toElementList(stateList).get(0);
+        Document doc = parseFile("/Registration.scxml");
+        Element state = conv.executeXpathSingleElement(doc, "//state[@id='Start']");
         List<String> transitionTargets = conv.extractTransitions(state);
         assertThat(transitionTargets).containsOnly("All", "Finishing", "Course");
     }
 
     @Test
     public void testExtractTransitionsGraph() {
-        Document doc = parseRegistrationScxmlFile();
-        Collection<GraphNode> nodes = conv.extractTransitionsGraph(doc);
+        Document doc = parseFile("/Registration.scxml");
+        Collection<GraphNode> nodes = conv.extractTransitionsGraph(doc, "Start");
         Map<String, GraphNode> nodesByName = new HashMap<>();
         for (GraphNode node : nodes) {
             nodesByName.put(node.name(), node);
@@ -85,14 +86,26 @@ public class DomXpathBasedScxmlToVoicexmlConverterTest {
         assertThat(nodesByName.get("Course").allPaths()).containsOnly(
                 nodesByName.get("All"));
         assertThat(nodesByName.get("All").allPaths()).containsOnly(
-                nodesByName.get("Start"), nodesByName.get("Submit"));
+                nodesByName.get("Submit"));
         assertThat(nodesByName.get("Submit").allPaths()).hasSize(0);
     }
 
-    private Document parseRegistrationScxmlFile() {
+    @Test
+    public void testConvertSingleState() {
+        GrammarReference grammar = mock(GrammarReference.class);
+        when(grammar.grammarFile()).thenReturn("registrace.grxml");
+        when(grammar.referenceForState("Course")).thenReturn("./registration.grxml#predmet");
+        String vxmlActual = conv.convert(getClass().getResourceAsStream("/Registration_singleState.scxml"), grammar);
+        String vxmlExpected = conv.render(parseFile("/Registration_singleState.vxml"));
+        System.out.println(vxmlActual.replaceAll("\\s+", ""));
+        System.out.println(vxmlExpected.replaceAll("\\s+", ""));
+        assertThat(vxmlActual).isEqualTo(vxmlExpected);
+    }
+
+    private Document parseFile(String name) {
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            return builder.parse(getClass().getResourceAsStream("/Registration.scxml"));
+            return builder.parse(getClass().getResourceAsStream(name));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

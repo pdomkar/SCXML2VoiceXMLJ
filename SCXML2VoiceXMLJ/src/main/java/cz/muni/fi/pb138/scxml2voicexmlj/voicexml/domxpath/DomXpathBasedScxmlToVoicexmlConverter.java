@@ -5,11 +5,23 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.domxpath;
 
+import cz.muni.fi.pb138.scxml2voicexmlj.GrammarReference;
+import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.ScxmlToVoicexmlConverter;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -20,14 +32,74 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class DomXpathBasedScxmlToVoicexmlConverter {
+public class DomXpathBasedScxmlToVoicexmlConverter implements ScxmlToVoicexmlConverter {
 
-    private XPath xpath = XPathFactory.newInstance().newXPath();
+    private XPath xpath;
+    private DocumentBuilder docBuilder;
 
-    public Collection<GraphNode> extractTransitionsGraph(Document document) {
+    public DomXpathBasedScxmlToVoicexmlConverter() {
+        try {
+            xpath = XPathFactory.newInstance().newXPath();
+            docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String convert(InputStream scxmlContent, GrammarReference srgsReferences) {
+        try {
+            Document scxml = docBuilder.parse(scxmlContent);
+            Document vxml = docBuilder.parse(getClass().getResourceAsStream("/vxmlTemplate.xml"));
+            String initialState = startStateName(scxml);
+            Collection<GraphNode> rawNodes = extractTransitionsGraph(scxml, initialState);
+            List<GraphNode> orderedNodes = GraphHelper.orderedTopologically(rawNodes);
+            appendGrammarFile(vxml, srgsReferences);
+            List<Element> orderedStates = extractStatesOrdered(scxml, orderedNodes);
+            for (Element state : orderedStates) {
+                appendTransformedState(vxml, state);
+            }
+            return render(vxml);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void appendTransformedState(Document vxml, Element stateScxml) {
+
+    }
+
+    public List<Element> extractStatesOrdered(Document scxml, List<GraphNode> orderedNodes) {
+        List<Element> states = new ArrayList<>();
+        for (GraphNode node : orderedNodes) {
+            states.add(executeXpathSingleElement(scxml, "//state[@id='" + node.name() + "']"));
+        }
+        return states;
+    }
+
+    public void appendGrammarFile(Document document, GrammarReference srgsReferences) {
+        Element form = executeXpathSingleElement(document, "//form");
+        Element grammar = document.createElement("grammar");
+        grammar.setAttribute("src", srgsReferences.grammarFile());
+        form.appendChild(grammar);
+    }
+
+    public String render(Document document) {
+        try {
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            StreamResult result = new StreamResult(new StringWriter());
+            DOMSource source = new DOMSource(document);
+            transformer.transform(source, result);
+            String xmlString = result.getWriter().toString();
+            return xmlString;
+        } catch (TransformerException | TransformerFactoryConfigurationError e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Collection<GraphNode> extractTransitionsGraph(Document document, String initialState) {
         Map<String, GraphNode> graphsById = new HashMap<>();
         List<Element> states = findStates(document);
-        String initialState = startStateName(document);
         for (Element state : states) {
             String name = extractAttribute(state, "id");
             graphsById.put(extractStateId(state), new GraphNode(name));
@@ -38,6 +110,9 @@ public class DomXpathBasedScxmlToVoicexmlConverter {
             String name = extractAttribute(state, "id");
             GraphNode current = graphsById.get(name);
             for (String transitionTargetName : extractTransitions(state)) {
+                if (transitionTargetName.equals(initialState)) {
+                    continue;
+                }
                 GraphNode target = graphsById.get(transitionTargetName);
                 current.addPathTo(target);
             }
@@ -70,10 +145,11 @@ public class DomXpathBasedScxmlToVoicexmlConverter {
     }
 
     public String startStateName(Document doc) {
-        NodeList scxmlList = executeXpath(doc, "/scxml");
-        Element scxml = (Element) scxmlList.item(0);
-        if (scxml == null) {
-            throw new IllegalArgumentException("No root scxml element");
+        Element scxml;
+        try {
+            scxml = executeXpathSingleElement(doc, "/scxml");
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("No root scxml element", e);
         }
         String start = scxml.getAttribute("initial");
         if (start.isEmpty()) {
@@ -82,13 +158,22 @@ public class DomXpathBasedScxmlToVoicexmlConverter {
         return start;
     }
 
-    public NodeList executeXpath(Node node, String query) {
+    public NodeList executeXpath(Node root, String query) {
         try {
             XPathExpression expr = xpath.compile(query);
-            return (NodeList) expr.evaluate(node, XPathConstants.NODESET);
+            return (NodeList) expr.evaluate(root, XPathConstants.NODESET);
         } catch (XPathExpressionException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Element executeXpathSingleElement(Node root, String query) {
+        List<Element> selected = toElementList(executeXpath(root, query));
+        if (selected.size() != 1) {
+            throw new IllegalArgumentException("Exactly one element must match the query " + query
+                    + " to extract the one element, got " + selected);
+        }
+        return selected.get(0);
     }
 
     public List<Element> toElementList(NodeList nodelist) {
