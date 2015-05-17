@@ -7,6 +7,7 @@ package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.domxpath;
 
 import cz.muni.fi.pb138.scxml2voicexmlj.GrammarReference;
 import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.ScxmlToVoicexmlConverter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -20,8 +21,10 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -56,8 +59,9 @@ public class DomXpathBasedScxmlToVoicexmlConverter implements ScxmlToVoicexmlCon
             List<GraphNode> orderedNodes = GraphHelper.orderedTopologically(rawNodes);
             appendGrammarFile(vxml, srgsReferences);
             List<Element> orderedStates = extractStatesOrdered(scxml, orderedNodes);
+            Element form = executeXpathSingleElement(vxml, "//form");
             for (Element state : orderedStates) {
-                appendTransformedState(vxml, state);
+                appendTransformedState(form, state, "");
             }
             return render(vxml);
         } catch (Exception e) {
@@ -65,8 +69,14 @@ public class DomXpathBasedScxmlToVoicexmlConverter implements ScxmlToVoicexmlCon
         }
     }
 
-    public void appendTransformedState(Document vxml, Element stateScxml) {
-
+    public void appendTransformedState(Element formVxml, Element stateScxml, String transformation) {
+        try (InputStream stylesheet = getClass().getResourceAsStream(transformation)) {
+            Transformer transformer = TransformerFactory.newInstance().newTransformer(new StreamSource(stylesheet));
+            DOMResult result = new DOMResult(formVxml);
+            transformer.transform(new DOMSource(stateScxml), result);
+        } catch (TransformerException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<Element> extractStatesOrdered(Document scxml, List<GraphNode> orderedNodes) {

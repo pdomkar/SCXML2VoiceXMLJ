@@ -102,6 +102,29 @@ public class DomXpathBasedScxmlToVoicexmlConverterTest {
         assertThat(vxmlActual).isEqualTo(vxmlExpected);
     }
 
+    @Test
+    public void testPerformTransformationOnState() {
+        Document scxml = parseFile("/Registration_singleState.scxml");
+        Document vxml = parseFile("/vxmlTemplate.xml");
+        Element form = conv.executeXpathSingleElement(vxml, "//form");
+        Element state = conv.executeXpathSingleElement(scxml, "//state");
+        conv.appendTransformedState(form, state, "/stylesheetHello.xsl");
+        String result = conv.render(vxml).replaceAll("[\\r\\n]+", "");
+        assertThat(result).matches(".*<form id=\"main\">\\s*<Hello/>\\s*</form>.*");
+    }
+
+    @Test
+    public void testAppendingStatesRetainsOrdering() {
+        Document scxml = parseFile("/Registration_singleState.scxml");
+        Document vxml = parseFile("/vxmlTemplate.xml");
+        Element form = conv.executeXpathSingleElement(vxml, "//form");
+        Element state = conv.executeXpathSingleElement(scxml, "//state");
+        conv.appendTransformedState(form, state, "/stylesheetHello.xsl");
+        conv.appendTransformedState(form, state, "/stylesheetGoodbye.xsl");
+        String result = conv.render(vxml).replaceAll("[\\r\\n]+", "");
+        assertThat(result).matches(".*<form id=\"main\">\\s*<Hello/>s*<Goodbye/>\\s*</form>.*");
+    }
+
     private Document parseFile(String name) {
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -118,5 +141,4 @@ public class DomXpathBasedScxmlToVoicexmlConverterTest {
         }
         return result;
     }
-
 }

@@ -3,7 +3,7 @@
     <xsl:output method="xml"/>
     
     <xsl:template match="/">
-        <Hello xmlns="http://www.w3.or/2001/vxml"/>
+        <Goodbye xmlns="http://www.w3.or/2001/vxml"/>
     </xsl:template>
     
 </xsl:stylesheet>
