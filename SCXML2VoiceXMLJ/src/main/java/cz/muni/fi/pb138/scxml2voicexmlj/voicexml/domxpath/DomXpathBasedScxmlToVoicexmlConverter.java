@@ -61,7 +61,9 @@ public class DomXpathBasedScxmlToVoicexmlConverter implements ScxmlToVoicexmlCon
             List<Element> orderedStates = extractStatesOrdered(scxml, orderedNodes);
             Element form = executeXpathSingleElement(vxml, "//form");
             for (Element state : orderedStates) {
-                appendTransformedState(form, state, "");
+                Element transformedField = transformElementAndAdoptBy(state, "/scxmlToVxml.xsl", vxml);
+                appendGrammarField(transformedField, srgsReferences);
+                form.appendChild(transformedField);
             }
             return render(vxml);
         } catch (Exception e) {
@@ -69,11 +71,19 @@ public class DomXpathBasedScxmlToVoicexmlConverter implements ScxmlToVoicexmlCon
         }
     }
 
-    public void appendTransformedState(Element formVxml, Element stateScxml, String transformation) {
+    public Element transformElementAndAdoptBy(Element source, String transformation, Document parent) {
+        Element rawTransformed = transformElement(source, transformation);
+        Element adoptedField = (Element) rawTransformed.cloneNode(true);
+        parent.adoptNode(adoptedField);
+        return adoptedField;
+    }
+
+    public Element transformElement(Element source, String transformation) {
         try (InputStream stylesheet = getClass().getResourceAsStream(transformation)) {
             Transformer transformer = TransformerFactory.newInstance().newTransformer(new StreamSource(stylesheet));
-            DOMResult result = new DOMResult(formVxml);
-            transformer.transform(new DOMSource(stateScxml), result);
+            DOMResult result = new DOMResult();
+            transformer.transform(new DOMSource(source), result);
+            return (Element) result.getNode().getFirstChild();
         } catch (TransformerException | IOException e) {
             throw new RuntimeException(e);
         }
@@ -94,11 +104,23 @@ public class DomXpathBasedScxmlToVoicexmlConverter implements ScxmlToVoicexmlCon
         form.appendChild(grammar);
     }
 
-    public String render(Document document) {
+    public void appendGrammarField(Element field, GrammarReference srgsReferences) {
+        String name = field.getAttribute("name");
+        if (!srgsReferences.stateHasGrammarReference(name)) {
+            return;
+        }
+        String reference = srgsReferences.referenceForState(name);
+        Element grammar = field.getOwnerDocument().createElement("grammar");
+        grammar.setAttribute("src", reference);
+        Element nomatch = executeXpathSingleElement(field, "./*[name()='nomatch']");
+        field.insertBefore(grammar, nomatch);
+    }
+
+    public String render(Node domTree) {
         try {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             StreamResult result = new StreamResult(new StringWriter());
-            DOMSource source = new DOMSource(document);
+            DOMSource source = new DOMSource(domTree);
             transformer.transform(source, result);
             String xmlString = result.getWriter().toString();
             return xmlString;

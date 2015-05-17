@@ -13,12 +13,14 @@ import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -94,35 +96,41 @@ public class DomXpathBasedScxmlToVoicexmlConverterTest {
     public void testConvertSingleState() {
         GrammarReference grammar = mock(GrammarReference.class);
         when(grammar.grammarFile()).thenReturn("registrace.grxml");
+        when(grammar.stateHasGrammarReference("Course")).thenReturn(true);
         when(grammar.referenceForState("Course")).thenReturn("./registration.grxml#predmet");
-        String vxmlActual = conv.convert(getClass().getResourceAsStream("/Registration_singleState.scxml"), grammar);
-        String vxmlExpected = conv.render(parseFile("/Registration_singleState.vxml"));
-        System.out.println(vxmlActual.replaceAll("\\s+", ""));
-        System.out.println(vxmlExpected.replaceAll("\\s+", ""));
+
+        String vxmlActual = conv.convert(getClass().getResourceAsStream("/Registration_singleState.scxml"), grammar).replaceAll("\\s*[\\r\\n]+\\s*", "");
+        String vxmlExpected = conv.render(parseFile("/Registration_singleState.vxml")).replaceAll("\\s*[\\r\\n]+\\s*", "");
         assertThat(vxmlActual).isEqualTo(vxmlExpected);
     }
 
     @Test
     public void testPerformTransformationOnState() {
         Document scxml = parseFile("/Registration_singleState.scxml");
-        Document vxml = parseFile("/vxmlTemplate.xml");
-        Element form = conv.executeXpathSingleElement(vxml, "//form");
         Element state = conv.executeXpathSingleElement(scxml, "//state");
-        conv.appendTransformedState(form, state, "/stylesheetHello.xsl");
-        String result = conv.render(vxml).replaceAll("[\\r\\n]+", "");
-        assertThat(result).matches(".*<form id=\"main\">\\s*<Hello/>\\s*</form>.*");
+        Element transformed = conv.transformElement(state, "/stylesheetHello.xsl");
+        String result = conv.render(transformed).replaceAll("[\\r\\n]+", "");
+        assertThat(result).matches(".*<Hello/>.*");
+    }
+
+    @Test(expected = DOMException.class)
+    public void testTransformedStateCanNotBeAppended() throws ParserConfigurationException {
+        Document source = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Document target = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element sourceRoot = source.createElement("root");
+        source.appendChild(sourceRoot);
+        Element transformed = conv.transformElement(sourceRoot, "/stylesheetHello.xsl");
+        target.appendChild(transformed);
     }
 
     @Test
-    public void testAppendingStatesRetainsOrdering() {
-        Document scxml = parseFile("/Registration_singleState.scxml");
-        Document vxml = parseFile("/vxmlTemplate.xml");
-        Element form = conv.executeXpathSingleElement(vxml, "//form");
-        Element state = conv.executeXpathSingleElement(scxml, "//state");
-        conv.appendTransformedState(form, state, "/stylesheetHello.xsl");
-        conv.appendTransformedState(form, state, "/stylesheetGoodbye.xsl");
-        String result = conv.render(vxml).replaceAll("[\\r\\n]+", "");
-        assertThat(result).matches(".*<form id=\"main\">\\s*<Hello/>s*<Goodbye/>\\s*</form>.*");
+    public void testAdoptedTransformedStateCanBeAppended() throws ParserConfigurationException {
+        Document source = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Document target = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element sourceRoot = source.createElement("root");
+        source.appendChild(sourceRoot);
+        Element transformed = conv.transformElementAndAdoptBy(sourceRoot, "/stylesheetHello.xsl", target);
+        target.appendChild(transformed);
     }
 
     private Document parseFile(String name) {
