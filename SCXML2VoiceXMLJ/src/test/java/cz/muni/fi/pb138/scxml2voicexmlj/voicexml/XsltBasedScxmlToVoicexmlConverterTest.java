@@ -5,10 +5,9 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml;
 
+import cz.muni.fi.pb138.scxml2voicexmlj.GrammarReference;
 import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.xslt.XsltBasedScxmlToVoicexmlConverter;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,6 +16,8 @@ import javax.xml.xpath.XPathExpressionException;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -54,8 +55,8 @@ public class XsltBasedScxmlToVoicexmlConverterTest {
         state.setAttribute("name", "someField");
         root.appendChild(state);
         doc.appendChild(root);
-        Map<String, String> grammarReferences = new HashMap<>();
-        grammarReferences.put("someField", "grammar");
+        GrammarReference grammarReferences = mock(GrammarReference.class);
+        when(grammarReferences.referenceForState("someField")).thenReturn("grammar");
         conv.appendGrammarReferences(doc, grammarReferences);
         String result = conv.render(doc);
         Pattern pattern = Pattern.compile(".*?<field name=\"someField\">.*?<grammar src=\"grammar\" type=\"application\\/grammar\\+xml\"\\/>.*", Pattern.DOTALL);

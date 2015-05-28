@@ -5,10 +5,10 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.xslt;
 
+import cz.muni.fi.pb138.scxml2voicexmlj.GrammarReference;
 import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.ScxmlToVoicexmlConverter;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.Map;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
@@ -42,7 +42,7 @@ public class XsltBasedScxmlToVoicexmlConverter implements ScxmlToVoicexmlConvert
     }
 
     @Override
-    public String convert(InputStream scxmlContent, Map<String, String> srgsReferences) {
+    public String convert(InputStream scxmlContent, GrammarReference srgsReferences) {
         try {
             Transformer transformer = TransformerFactory.newInstance().newTransformer(new StreamSource(stylesheet));
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -55,7 +55,7 @@ public class XsltBasedScxmlToVoicexmlConverter implements ScxmlToVoicexmlConvert
         }
     }
 
-    public void appendGrammarReferences(Document doc, Map<String, String> srgsReferences) throws XPathExpressionException {
+    public void appendGrammarReferences(Document doc, GrammarReference srgsReferences) throws XPathExpressionException {
         XPath xpath = XPathFactory.newInstance().newXPath();
         XPathExpression expr = xpath.compile("//field");
         NodeList states = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
@@ -66,7 +66,7 @@ public class XsltBasedScxmlToVoicexmlConverter implements ScxmlToVoicexmlConvert
             if (name == null || name.isEmpty()) {
                 throw new IllegalStateException("Unnamed field, cant assign grammar" + name);
             }
-            String reference = srgsReferences.get(name);
+            String reference = srgsReferences.referenceForState(name);
             if (reference == null || reference.isEmpty()) {
                 throw new IllegalStateException("Dont know grammar for field " + name);
             }

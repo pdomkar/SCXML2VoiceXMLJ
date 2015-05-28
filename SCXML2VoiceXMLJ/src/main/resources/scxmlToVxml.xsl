@@ -9,6 +9,7 @@
                 <xsl:value-of select="@id"/>
             </xsl:attribute>
             <xsl:apply-templates select="onentry"/>
+            <xsl:apply-templates select="onexit"/>
             <nomatch count="3">
                 <exit/>
             </nomatch>
@@ -20,5 +21,11 @@
     
     <xsl:template match="onentry">
         <xsl:copy-of select="node()"/> 
+    </xsl:template>
+    
+    <xsl:template match="onexit">
+        <filled>
+            <xsl:copy-of select="node()"/> 
+        </filled>
     </xsl:template>
 </xsl:stylesheet>

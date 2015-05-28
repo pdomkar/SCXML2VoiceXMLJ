@@ -5,9 +5,9 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.sax;
 
+import cz.muni.fi.pb138.scxml2voicexmlj.GrammarReference;
 import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.ScxmlToVoicexmlConverter;
 import java.io.InputStream;
-import java.util.Map;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.helpers.DefaultHandler;
@@ -15,7 +15,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class SaxBasedScxmlToVoicexmlConverter implements ScxmlToVoicexmlConverter {
 
     @Override
-    public String convert(InputStream scxmlContent, Map<String, String> srgsReferences) {
+    public String convert(InputStream scxmlContent, GrammarReference srgsReferences) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
