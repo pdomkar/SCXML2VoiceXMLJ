@@ -8,7 +8,7 @@
        <assign name="Start" expr="true"/>
     </filled>
     <nomatch count="3">
-        <assign name="Start" expr="true"/>
+       <exit/>
     </nomatch>
     <noinput count="3">
        <exit/>
