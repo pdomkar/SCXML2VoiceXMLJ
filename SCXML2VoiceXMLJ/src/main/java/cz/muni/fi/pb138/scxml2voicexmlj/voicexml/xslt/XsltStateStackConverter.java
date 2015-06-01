@@ -39,32 +39,34 @@ public class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
      s.
      }*/
     List<Element> transformStates(List<Element> states, Document vxmlParent) {
-        System.out.println(states);
         List<Element> transformed = new ArrayList<>();
         for (Element state : states) {
             transformed.add(transformState(state, vxmlParent));
+            visitedStates.add(helper.extractAttribute(state, "id"));
         }
         return transformed;
     }
 
     private Element transformState(Element state, Document vxmlParent) {
-        List<Element> transitions = helper.toElementList(helper.executeXpath(state, "transition"));
+        List<Element> transitions = helper.toElementList(helper.executeXpath(state, "*[local-name()='transition']"));
         List<Element> clears = new ArrayList<>();
-        System.out.println(helper.render(state));
         Element rawField = helper.transformElement(state, "/stateTransformation.xsl");
-        System.out.println(rawField);
         Element field = helper.adoptElement(rawField, vxmlParent);
         for (Element tra : transitions) {
             String target = helper.extractAttribute(tra, "target");
+            String name = helper.extractAttribute(tra, "event");
+            System.out.println(name + "->" + target + " already visited " + visitedStates);
             if (visitedStates.contains(target)) {
                 int from = visitedStates.indexOf(target);
                 int to = visitedStates.size() - 1;
                 List<String> fieldsToClear = visitedStates.subList(from, to);
-                Element clear = vxmlParent.createElement("clear");
+                System.out.println("toCl " + fieldsToClear);
+                clears.add(vxmlParent.createElement("clear"));
             }
         }
         if (!clears.isEmpty()) {
-
+            Element cond = vxmlParent.createElement("foo");
+            field.appendChild(cond);
         }
         return field;
     }

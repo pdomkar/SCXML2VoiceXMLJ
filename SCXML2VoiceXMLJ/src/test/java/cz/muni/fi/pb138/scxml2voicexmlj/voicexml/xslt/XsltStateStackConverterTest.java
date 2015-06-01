@@ -8,10 +8,7 @@ package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.xslt;
 import cz.muni.fi.pb138.scxml2voicexmlj.XmlHelper;
 import java.net.URISyntaxException;
 import java.util.List;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMSource;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,23 +40,24 @@ public class XsltStateStackConverterTest {
             Element adopted = helper.adoptElement(field, actual);
             form.appendChild(adopted);
         }
-        Source actualSource = new DOMSource(actual);
-        Document vxml = helper.parseFile("/testForwardReferences.vxml");
-        Source vxmlSource = new DOMSource(helper.parseFile("/testForwardReferences.vxml"));
-        assertThat(the(actual), isEquivalentTo(the(vxml)));
-    }
-
-    public Document parseFile(String name) {
-        try {
-            return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(getClass().getResourceAsStream(name));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        Document expected = helper.parseFile("/testForwardReferences.vxml");
+        assertThat(the(actual), isEquivalentTo(the(expected)));
     }
 
     @Test
     public void testBackwardTransitionsConvertedToClear() {
+        Document scxml = helper.parseFile("/testBackwardReferences.scxml");
+        List<Element> states = helper.toElementList(helper.executeXpath(scxml, "//*[local-name()='state']"));
+        List<Element> fields = conv.transformStates(states, conv.emptyVxmlDocument());
 
+        Document actual = conv.emptyVxmlDocument();
+        Element form = helper.executeXpathSingleElement(actual, "//*[local-name()='form']");
+        for (Element field : fields) {
+            Element adopted = helper.adoptElement(field, actual);
+            form.appendChild(adopted);
+        }
+        Document expected = helper.parseFile("/testBackwardReferences.vxml");
+        assertThat(the(actual), isEquivalentTo(the(expected)));
     }
 
 }

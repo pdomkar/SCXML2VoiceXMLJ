@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<field name="A"/>
-<field name="B"/>
-<field name="C">
-    <if expr="C=='ev'">
-        <clear namelist="A B C"/>
-</field> 
-        
-        
+<vxml xmlns="http://www.w3.or/2001/vxml" version="2.0">
+    <form id="main">
+        <field name="A"/>
+        <field name="B"/>
+        <field name="C">
+            <if expr="C=='ev'">
+                <clear namelist="A B C"/>
+            </if>
+        </field> 
+    </form>
+</vxml>
