@@ -5,7 +5,7 @@
         <field name="B"/>
         <field name="C">
             <if expr="C=='ev'">
-                <clear namelist="A B C"/>
+                <clear namelist="B C"/>
             </if>
         </field> 
     </form>

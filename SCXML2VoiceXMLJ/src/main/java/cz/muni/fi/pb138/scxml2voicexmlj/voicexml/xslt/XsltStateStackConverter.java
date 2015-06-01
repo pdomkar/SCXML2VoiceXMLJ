@@ -41,32 +41,35 @@ public class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
     List<Element> transformStates(List<Element> states, Document vxmlParent) {
         List<Element> transformed = new ArrayList<>();
         for (Element state : states) {
-            transformed.add(transformState(state, vxmlParent));
             visitedStates.add(helper.extractAttribute(state, "id"));
+            transformed.add(transformState(state, vxmlParent));
+
         }
         return transformed;
     }
 
     private Element transformState(Element state, Document vxmlParent) {
+        String stateName = helper.extractAttribute(state, "id");
         List<Element> transitions = helper.toElementList(helper.executeXpath(state, "*[local-name()='transition']"));
-        List<Element> clears = new ArrayList<>();
+        ConditionalTransitionsBuilder clearBuilder = new ConditionalTransitionsBuilder(vxmlParent);
         Element rawField = helper.transformElement(state, "/stateTransformation.xsl");
         Element field = helper.adoptElement(rawField, vxmlParent);
         for (Element tra : transitions) {
             String target = helper.extractAttribute(tra, "target");
-            String name = helper.extractAttribute(tra, "event");
-            System.out.println(name + "->" + target + " already visited " + visitedStates);
+            String event = helper.extractAttribute(tra, "event");
+            System.out.println(event + "->" + target + " already visited " + visitedStates);
             if (visitedStates.contains(target)) {
                 int from = visitedStates.indexOf(target);
-                int to = visitedStates.size() - 1;
+                int to = visitedStates.size();
                 List<String> fieldsToClear = visitedStates.subList(from, to);
-                System.out.println("toCl " + fieldsToClear);
-                clears.add(vxmlParent.createElement("clear"));
+                System.out.println(visitedStates);
+                System.out.println(fieldsToClear);
+                System.out.println(from + "-" + to);
+                clearBuilder.appendCondition(stateName, event, fieldsToClear);
             }
         }
-        if (!clears.isEmpty()) {
-            Element cond = vxmlParent.createElement("foo");
-            field.appendChild(cond);
+        if (clearBuilder.hasAny()) {
+            field.appendChild(clearBuilder.build());
         }
         return field;
     }

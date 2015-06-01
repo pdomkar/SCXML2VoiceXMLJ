@@ -7,6 +7,6 @@
         <transition event="ev" target="C"/>
     </state>
     <state id="C">        
-        <transition event="ev" target="A"/>
+        <transition event="ev" target="B"/>
     </state>
 </scxml>

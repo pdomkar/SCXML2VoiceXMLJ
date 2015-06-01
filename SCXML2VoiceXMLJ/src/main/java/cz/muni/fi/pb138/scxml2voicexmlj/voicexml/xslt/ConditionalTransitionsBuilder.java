@@ -25,14 +25,18 @@ public class ConditionalTransitionsBuilder {
         return ifRoot;
     }
 
+    public boolean hasAny() {
+        return ifRoot != null;
+    }
+
     public void appendCondition(String name, String event, List<String> targets) {
         if (ifRoot == null) {
-            ifRoot = parent.createElement("if");
+            ifRoot = parent.createElementNS("http://www.w3.or/2001/vxml", "if");
             appendExpr(ifRoot, name, event);
             ifRoot.appendChild(createClear(targets));
             return;
         }
-        Element cond = parent.createElement("elseif");
+        Element cond = parent.createElementNS("http://www.w3.or/2001/vxml", "elseif");
         appendExpr(cond, name, event);
         ifRoot.appendChild(cond);
         ifRoot.appendChild(createClear(targets));
@@ -50,7 +54,7 @@ public class ConditionalTransitionsBuilder {
             }
             joinedTargets.append(targets.get(i));
         }
-        Element clear = parent.createElement("clear");
+        Element clear = parent.createElementNS("http://www.w3.or/2001/vxml", "clear");
         clear.setAttribute("namelist", joinedTargets.toString());
         return clear;
     }
