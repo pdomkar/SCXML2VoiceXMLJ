@@ -20,7 +20,7 @@
               <vxml:prompt count="2">Možnosti jsou zkouška nebo zápočet.</vxml:prompt>
           </onentry>
           <datamodel>
-            <data id="Finishing" expr="./registration.grxml#ukonceni"/>
+            <data id="FinishingGrammar" expr="./registration.grxml#ukonceni"/>
           </datamodel>
           <transition event="Finishing" target="All"/>
     </state>
@@ -31,7 +31,7 @@
               <vxml:prompt count="2">Lze si zaregistrovat předměty PB095, PB125, PB162 nebo PA156.</vxml:prompt>
           </onentry>
           <datamodel>
-           <data id="Course" expr="./registration.grxml#predmet"/>
+           <data id="CourseGrammar" expr="./registration.grxml#predmet"/>
           </datamodel>
           <transition event="Course" target="All"/>
     </state>
@@ -41,7 +41,7 @@
               <vxml:prompt count="2">Ano nebo ne?</vxml:prompt>
           </onentry>
           <datamodel>
-           <data id="yesno" expr="./registration.grxml#anone"/>
+           <data id="yesnoGrammar" expr="./registration.grxml#anone"/>
           </datamodel>
           <transition event="ne" target="Start" />
           <transition event="ano" target="Submit" />
