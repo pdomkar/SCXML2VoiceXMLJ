@@ -39,9 +39,10 @@ public class XmlHelper {
     public XmlHelper() {
         try {
             xpath = XPathFactory.newInstance().newXPath();
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setNamespaceAware(true);
-            docBuilder = dbf.newDocumentBuilder();
+            /*  DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+             dbf.setNamespaceAware(true);
+             docBuilder = dbf.newDocumentBuilder();*/
+            docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

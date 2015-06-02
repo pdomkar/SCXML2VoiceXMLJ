@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.xslt;
 
+import cz.muni.fi.pb138.scxml2voicexmlj.GrammarReference;
 import cz.muni.fi.pb138.scxml2voicexmlj.XmlHelper;
 import static java.util.Arrays.asList;
 import java.util.Collections;
@@ -13,6 +14,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import static org.xmlmatchers.XmlMatchers.isEquivalentTo;
@@ -93,7 +99,16 @@ public class XsltStateStackConverterTest {
 
     @Test
     public void foo() {
-        System.out.println(conv.convert(getClass().getResourceAsStream("/Registration.scxml"), null));
-    }
+        GrammarReference gram = mock(GrammarReference.class);
+        when(gram.grammarFile()).thenReturn("file");
+        when(gram.stateHasGrammarReference(anyString())).thenReturn(true);
+        when(gram.referenceForState(anyString())).then(new Answer<String>() {
 
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                return invocation.getArguments()[0].toString();
+            }
+        });
+        System.out.println(conv.convert(getClass().getResourceAsStream("/Registration.scxml"), gram));
+    }
 }

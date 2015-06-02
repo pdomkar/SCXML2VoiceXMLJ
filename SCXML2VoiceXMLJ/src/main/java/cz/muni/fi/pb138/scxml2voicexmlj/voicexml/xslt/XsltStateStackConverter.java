@@ -24,18 +24,37 @@ public class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
         Document vxml = emptyVxmlDocument();
         Document scxml = helper.parseStream(scxmlContent);
         Element form = helper.executeXpathSingleElement(vxml, "//*[local-name()='form']");
+        appendGrammarFile(form, srgsReferences);
         List<Element> states = helper.toElementList(helper.executeXpath(scxml, "//*[local-name()='state']"));
-        for (Element field : transformStates(states, vxml)) {
+        for (Element field : transformStates(states, vxml, srgsReferences)) {
             form.appendChild(field);
         }
         return helper.render(vxml);
+    }
+
+    public void appendGrammarFile(Element form, GrammarReference srgsReferences) {
+        Element grammar = form.getOwnerDocument().createElement("grammar");
+        grammar.setAttribute("src", srgsReferences.grammarFile());
+        form.appendChild(grammar);
+    }
+
+    public void appendGrammarField(Element field, GrammarReference srgsReferences) {
+        String name = field.getAttribute("name");
+        if (!srgsReferences.stateHasGrammarReference(name)) {
+            return;
+        }
+        String reference = srgsReferences.referenceForState(name);
+        Element grammar = field.getOwnerDocument().createElement("grammar");
+        grammar.setAttribute("src", reference);
+        Element nomatch = helper.executeXpathSingleElement(field, "./*[name()='nomatch']");
+        field.insertBefore(grammar, nomatch);
     }
 
     public Document emptyVxmlDocument() {
         return helper.parseFile("/vxmlTemplate.xml");
     }
 
-    public List<Element> transformStates(List<Element> states, Document vxmlParent) {
+    public List<Element> transformStates(List<Element> states, Document vxmlParent, GrammarReference grammarReference) {
         List<Element> transformed = new ArrayList<>();
         Stack<String> visitedStates = new Stack<>();
         for (Element state : states) {
@@ -46,6 +65,7 @@ public class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
                 Element filled = appendFilledElementLazyly(field);
                 filled.appendChild(transitionsAssembler.result());
             }
+            appendGrammarField(field, grammarReference);
             transformed.add(field);
         }
         return transformed;
