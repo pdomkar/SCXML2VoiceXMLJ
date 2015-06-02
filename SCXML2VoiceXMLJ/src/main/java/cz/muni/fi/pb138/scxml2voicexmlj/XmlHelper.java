@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -114,8 +115,20 @@ public class XmlHelper {
     }
 
     public Document parseFile(String name) {
+        return parseStream(getClass().getResourceAsStream(name));
+    }
+
+    public Document parseXmlToDocument(String xml) {
+        return parseStream(new ByteArrayInputStream(xml.getBytes()));
+    }
+
+    public Element parseXmlToElement(String xml) {
+        return executeXpathSingleElement(parseXmlToDocument(xml), "/*");
+    }
+
+    public Document parseStream(InputStream xml) {
         try {
-            return docBuilder.parse(getClass().getResourceAsStream(name));
+            return docBuilder.parse(xml);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

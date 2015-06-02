@@ -19,59 +19,66 @@ public class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
 
     private XmlHelper helper = new XmlHelper();
 
-    private Stack<String> visitedStates = new Stack<>();
-
     @Override
     public String convert(InputStream scxmlContent, GrammarReference srgsReferences) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Document vxml = emptyVxmlDocument();
+        Document scxml = helper.parseStream(scxmlContent);
+        Element form = helper.executeXpathSingleElement(vxml, "//*[local-name()='form']");
+        List<Element> states = helper.toElementList(helper.executeXpath(scxml, "//*[local-name()='state']"));
+        for (Element field : transformStates(states, vxml)) {
+            form.appendChild(field);
+        }
+        return helper.render(vxml);
     }
 
     public Document emptyVxmlDocument() {
         return helper.parseFile("/vxmlTemplate.xml");
     }
 
-    /* private String convertState(Element scxmlState) {
-     String name = scxmlState.getAttribute("id");
-     if (visitedStates.contains(this)) {
-     visitedStates.add(name);
-     }
-     Stack<?> s;
-     s.
-     }*/
-    List<Element> transformStates(List<Element> states, Document vxmlParent) {
+    public List<Element> transformStates(List<Element> states, Document vxmlParent) {
         List<Element> transformed = new ArrayList<>();
+        Stack<String> visitedStates = new Stack<>();
         for (Element state : states) {
             visitedStates.add(helper.extractAttribute(state, "id"));
-            transformed.add(transformState(state, vxmlParent));
-
+            Element field = commonScxmlToVxmlTransform(state, vxmlParent);
+            AssemblerResult<Element> transitionsAssembler = assembleClearsForBackwardTransitions(state, visitedStates, vxmlParent);
+            if (transitionsAssembler.isAvailable()) {
+                Element filled = appendFilledElementLazyly(field);
+                filled.appendChild(transitionsAssembler.result());
+            }
+            transformed.add(field);
         }
         return transformed;
     }
 
-    private Element transformState(Element state, Document vxmlParent) {
+    public Element commonScxmlToVxmlTransform(Element state, Document vxmlParent) {
+        Element rawField = helper.transformElement(state, "/stateTransformation.xsl");
+        return helper.adoptElement(rawField, vxmlParent);
+    }
+
+    private Element appendFilledElementLazyly(Element field) {
+        if (helper.executeXpath(field, "*[local-name()='filled']").getLength() == 0) {
+            Element filled = field.getOwnerDocument().createElement("filled");
+            field.appendChild(filled);
+        }
+        return helper.executeXpathSingleElement(field, "*[local-name()='filled']");
+    }
+
+    public AssemblerResult<Element> assembleClearsForBackwardTransitions(Element state, List<String> visitedStates, Document vxmlParent) {
         String stateName = helper.extractAttribute(state, "id");
         List<Element> transitions = helper.toElementList(helper.executeXpath(state, "*[local-name()='transition']"));
-        ConditionalTransitionsBuilder clearBuilder = new ConditionalTransitionsBuilder(vxmlParent);
-        Element rawField = helper.transformElement(state, "/stateTransformation.xsl");
-        Element field = helper.adoptElement(rawField, vxmlParent);
+        ConditionalTransitionsAssembler clearBuilder = new ConditionalTransitionsAssembler(vxmlParent);
         for (Element tra : transitions) {
             String target = helper.extractAttribute(tra, "target");
             String event = helper.extractAttribute(tra, "event");
-            System.out.println(event + "->" + target + " already visited " + visitedStates);
             if (visitedStates.contains(target)) {
                 int from = visitedStates.indexOf(target);
                 int to = visitedStates.size();
                 List<String> fieldsToClear = visitedStates.subList(from, to);
-                System.out.println(visitedStates);
-                System.out.println(fieldsToClear);
-                System.out.println(from + "-" + to);
                 clearBuilder.appendCondition(stateName, event, fieldsToClear);
             }
         }
-        if (clearBuilder.hasAny()) {
-            field.appendChild(clearBuilder.build());
-        }
-        return field;
+        return clearBuilder;
     }
 
 }

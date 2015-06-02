@@ -26,9 +26,9 @@ public class ConditionalTransitionsBuilderTest {
     @Test
     public void testSingleCondition() {
         Document doc = helper.createDocument();
-        ConditionalTransitionsBuilder builder = new ConditionalTransitionsBuilder(doc);
+        ConditionalTransitionsAssembler builder = new ConditionalTransitionsAssembler(doc);
         builder.appendCondition("field", "event", asList("a", "b"));
-        assertThat(the(builder.build()), isEquivalentTo(the(
+        assertThat(the(builder.result()), isEquivalentTo(the(
                 "<if expr=\"field=='event'\">"
                 + "    <clear namelist=\"a b\"/>"
                 + "</if>"
@@ -38,10 +38,10 @@ public class ConditionalTransitionsBuilderTest {
     @Test
     public void testTwoConditions() {
         Document doc = helper.createDocument();
-        ConditionalTransitionsBuilder builder = new ConditionalTransitionsBuilder(doc);
+        ConditionalTransitionsAssembler builder = new ConditionalTransitionsAssembler(doc);
         builder.appendCondition("field1", "event1", asList("a", "b"));
         builder.appendCondition("field2", "event2", asList("c", "d", "e"));
-        assertThat(the(builder.build()), isEquivalentTo(the(
+        assertThat(the(builder.result()), isEquivalentTo(the(
                 "<if expr=\"field1=='event1'\">"
                 + "    <clear namelist=\"a b\"/>"
                 + "    <elseif expr=\"field2=='event2'\"/>"

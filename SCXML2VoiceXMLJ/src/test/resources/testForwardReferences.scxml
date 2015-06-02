@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:vxml="http://www.w3.org/2001/vxml" version="1.0" initial="A">    
-    <state id="A">        
-        <transition event="ev" target="B"/>
-    </state>
-    <state id="B">        
-    </state>
-</scxml>

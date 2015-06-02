@@ -9,23 +9,25 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class ConditionalTransitionsBuilder {
+public class ConditionalTransitionsAssembler implements AssemblerResult<Element> {
 
     private Document parent;
     private Element ifRoot;
 
-    public ConditionalTransitionsBuilder(Document parent) {
+    public ConditionalTransitionsAssembler(Document parent) {
         this.parent = parent;
     }
 
-    public Element build() {
+    @Override
+    public Element result() {
         if (ifRoot == null) {
-            throw new RuntimeException("No conditions set");
+            throw new IllegalStateException("No conditions set");
         }
         return ifRoot;
     }
 
-    public boolean hasAny() {
+    @Override
+    public boolean isAvailable() {
         return ifRoot != null;
     }
 

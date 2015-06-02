@@ -6,10 +6,11 @@
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.xslt;
 
 import cz.muni.fi.pb138.scxml2voicexmlj.XmlHelper;
-import java.net.URISyntaxException;
-import java.util.List;
-import javax.xml.parsers.ParserConfigurationException;
+import static java.util.Arrays.asList;
+import java.util.Collections;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -29,35 +30,70 @@ public class XsltStateStackConverterTest {
     }
 
     @Test
-    public void testForwardTransitionsIgnored() throws ParserConfigurationException, URISyntaxException {
-        Document scxml = helper.parseFile("/testForwardReferences.scxml");
-        List<Element> states = helper.toElementList(helper.executeXpath(scxml, "//*[local-name()='state']"));
-        List<Element> fields = conv.transformStates(states, conv.emptyVxmlDocument());
+    public void testNoStatesVisited() {
+        Document parent = helper.createDocument();
+        Element state = helper.parseXmlToElement(
+                "<state id='A'>"
+                + "    <transition event='ev' target='B'/>"
+                + "</state>");
+        AssemblerResult<Element> cond = conv.assembleClearsForBackwardTransitions(state, Collections.EMPTY_LIST, parent);
+        assertFalse(cond.isAvailable());
+    }
 
-        Document actual = conv.emptyVxmlDocument();
-        Element form = helper.executeXpathSingleElement(actual, "//*[local-name()='form']");
-        for (Element field : fields) {
-            Element adopted = helper.adoptElement(field, actual);
-            form.appendChild(adopted);
-        }
-        Document expected = helper.parseFile("/testForwardReferences.vxml");
-        assertThat(the(actual), isEquivalentTo(the(expected)));
+    @Test
+    public void testOnlyForwardReferences() {
+        Document parent = helper.createDocument();
+        Element state = helper.parseXmlToElement(
+                "<state id='A'>"
+                + "    <transition event='ev' target='B'/>"
+                + "</state>");
+        AssemblerResult<Element> cond = conv.assembleClearsForBackwardTransitions(state, asList("C", "D"), parent);
+        assertFalse(cond.isAvailable());
     }
 
     @Test
     public void testBackwardTransitionsConvertedToClear() {
-        Document scxml = helper.parseFile("/testBackwardReferences.scxml");
-        List<Element> states = helper.toElementList(helper.executeXpath(scxml, "//*[local-name()='state']"));
-        List<Element> fields = conv.transformStates(states, conv.emptyVxmlDocument());
+        Document ignored = helper.createDocument();
+        Element state = helper.parseXmlToElement(
+                "<state id='C'>"
+                + "    <transition event='ev' target='B'/>"
+                + "</state>");
+        Element vxml = helper.parseXmlToElement(
+                "<if expr=\"C=='ev'\" xmlns='http://www.w3.or/2001/vxml'>"
+                + "    <clear namelist='B C'/>"
+                + "</if>");
 
-        Document actual = conv.emptyVxmlDocument();
-        Element form = helper.executeXpathSingleElement(actual, "//*[local-name()='form']");
-        for (Element field : fields) {
-            Element adopted = helper.adoptElement(field, actual);
-            form.appendChild(adopted);
-        }
-        Document expected = helper.parseFile("/testBackwardReferences.vxml");
-        assertThat(the(actual), isEquivalentTo(the(expected)));
+        AssemblerResult<Element> cond = conv.assembleClearsForBackwardTransitions(state, asList("A", "B", "C"), ignored);
+        assertThat(the(cond.result()), isEquivalentTo(the(vxml)));
+    }
+
+    @Test
+    public void testTwoBackwardTransitions() {
+        Document ignored = helper.createDocument();
+        Element state = helper.parseXmlToElement(
+                "<state id='D'>"
+                + "    <transition event='ev1' target='A'/>"
+                + "    <transition event='ev2' target='C'/>"
+                + "</state>");
+        Element vxml = helper.parseXmlToElement(
+                "<if expr=\"D=='ev1'\" xmlns='http://www.w3.or/2001/vxml'>"
+                + "    <clear namelist='A B C D'/>"
+                + "    <elseif expr=\"D=='ev2'\"/>"
+                + "    <clear namelist='C D'/>"
+                + "</if>");
+
+        AssemblerResult<Element> cond = conv.assembleClearsForBackwardTransitions(state, asList("A", "B", "C", "D"), ignored);
+        assertThat(the(cond.result()), isEquivalentTo(the(vxml)));
+    }
+
+    @Test
+    public void testBothBackwardsTransitionAndOnExit() {
+        fail();
+    }
+
+    @Test
+    public void foo() {
+        System.out.println(conv.convert(getClass().getResourceAsStream("/Registration.scxml"), null));
     }
 
 }
