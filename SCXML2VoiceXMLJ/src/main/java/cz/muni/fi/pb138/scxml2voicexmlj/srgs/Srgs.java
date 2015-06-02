@@ -15,8 +15,13 @@ import java.util.Map;
 public interface Srgs {
     /**
      * @param scxmlContent      xml containing the dialog in the scxml format
+     * 
+     * @param grxmlFileName     path to the grxml file where all SRGS grammars 
+     *                          contained directly in {@code scxmlContent} 
+     *                          (not in external grxml files) will be put
+     * 
      * @return                  for each state id, the XML element code 
      *                          to reference the SRGS grammar of that state
      */
-    Map<String,String> getSrgsReferences(InputStream scxmlContent);
+    Map<String,String> getSrgsReferences(InputStream scxmlContent, String grxmlFileName);
 }
