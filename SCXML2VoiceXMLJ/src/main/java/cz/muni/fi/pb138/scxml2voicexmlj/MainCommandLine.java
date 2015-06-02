@@ -1,5 +1,9 @@
 package cz.muni.fi.pb138.scxml2voicexmlj;
 
+import cz.muni.fi.pb138.scxml2voicexmlj.srgs.Srgs;
+import cz.muni.fi.pb138.scxml2voicexmlj.srgs.SrgsImpl;
+import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.ScxmlToVoicexmlConverter;
+import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.ScxmlToVoicexmlConverterFactory;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +17,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.*;
-import java.net.MalformedURLException;
+import java.util.Map;
 
 /**
  * This class is the main entrance to the program. It processes the command line arguments
@@ -29,6 +33,8 @@ public final class MainCommandLine {
 
     private static final String APP_NAME = "scxml2voicexmlj";
     private static final String XSD_SCXML = "src/main/resources/scxml-schema/scxml.xsd";
+    private static final String XQUERY_ONLY_DATAMODEL_CHILD =
+            "for $d in /scxml/datamodel return $d";
 
     private static final String OPTION_INPUT_SHORT        = "i";
     private static final String OPTION_INPUT_LONG         = "input";
@@ -46,8 +52,6 @@ public final class MainCommandLine {
     private static final Options           options;
     private static final CommandLineParser parser;
 
-    private static boolean valid = true;
-
     static {
         options = new Options();
         options.addOption(OPTION_INPUT_SHORT,           OPTION_INPUT_LONG,           true, OPTION_INPUT_DESCRIPTION);
@@ -60,60 +64,35 @@ public final class MainCommandLine {
     }
 
     /**
-     * Main method of this utility. All exceptions are caught here and processed.
-     *
-     * @param args command line arguments
-     */
-    public static void main(String[] args) {
-        log.debug("Application started");
-        try {
-            execute(args);
-        } catch (MissingArgumentException e) {
-            log.warn("Missing argument", e);
-            System.err.println(e.getLocalizedMessage());
-        } catch (ParseException e) {
-            log.error("error parsing args", e);
-            System.err.println("Error parsing arguments. See log for more information.");
-        } catch (FileNotFoundException e) {
-            log.warn("File not found", e);
-            System.err.println(e.getLocalizedMessage());
-        } catch (MalformedURLException e) {
-            log.error("This should not happen", e);
-            System.err.println("Error when reaching an external source: " + e.getLocalizedMessage());
-        } catch (IOException e) {
-            log.error("Error I/O Operation", e);
-            System.err.print("Input-output error occurred: " + e.getLocalizedMessage());
-        } catch (SAXException e) {
-            log.error("This should not happen", e);
-            System.err.println("Error when parsing an external source: " + e.getLocalizedMessage());
-        }/*catch (Exception e) {
-            log.error("some error occurred", e);
-            System.err.println("Error: " + e.getLocalizedMessage());
-        }*/
-        System.out.println("Exiting...");
-        log.debug("Application ends");
-    }
-
-    /**
      * This method processes given arguments with configured option object.
      * Input file is checked for validity and if ok, the outputs are stored
      * or printed on the screen.
+     *
+     * @param args Arguments from command line
+     * @throws ParseException        if there was an error parsing arguments in args parameter
+     * @throws FileNotFoundException if any expected file is missing
+     * @throws IOException           if any I/O exception occurred
+     * @throws SAXException          if any SAX exception occurred
+     * @throws InvalidScxmlException if input file is not valid scxml file
      */
-    private static void execute(String[] args) throws ParseException, IOException, SAXException {
+    public static void execute(String[] args) throws ParseException, IOException, SAXException, InvalidScxmlException {
         CommandLine cmd = parser.parse(options, args);
 
         if (cmd.hasOption(OPTION_HELP_SHORT)) {
             log.info("Showing help");
             HelpFormatter hf = new HelpFormatter();
             hf.printHelp(MainCommandLine.class.getName(), options);
+            //end and discard everything else, --help overrides it all
             return;
         }
 
+        String inputFile;
         if (cmd.hasOption(OPTION_INPUT_SHORT)) {
             log.info("Evaluating option " + OPTION_INPUT_SHORT);
             System.out.println("Opening and validating input file");
-            String file = cmd.getOptionValue(OPTION_INPUT_SHORT);
-            loadInputFile(file);
+            inputFile = cmd.getOptionValue(OPTION_INPUT_SHORT);
+            validateInputFile(inputFile);
+            System.out.println("Input file is valid SCXML file.");
         }
         else {
             log.error("Missing option '" + OPTION_INPUT_LONG + "'");
@@ -122,63 +101,111 @@ public final class MainCommandLine {
             return;
         }
 
-        if (!valid) return;
+        Map<String, String> grammars;
+        if (cmd.hasOption(OPTION_OUTPUT_SRGS_SHORT)) {
+            log.info("Evaluating option " + OPTION_OUTPUT_SRGS_SHORT);
+            String outputFile = cmd.getOptionValue(OPTION_OUTPUT_SRGS_SHORT);
+            grammars = runSRGSComponent(inputFile, outputFile);
+        }
+        else {
+            grammars = runSRGSComponent(inputFile, null);
+        }
+
+        GrammarReference references = new BasicGrammarReference(grammars);
+        String grammarFileName = references.grammarFile();
+        if (grammarFileName != null) {
+            File grammarFile = new File(grammarFileName);
+            if (!grammarFile.exists() || grammarFile.isDirectory()) {
+                throw new FileNotFoundException("Grammar file " + grammarFileName + " is missing");
+            }
+        }
 
         if (cmd.hasOption(OPTION_OUTPUT_VOICEXML_SHORT)) {
             log.info("Evaluating option " + OPTION_OUTPUT_VOICEXML_SHORT);
-            String file = cmd.getOptionValue(OPTION_OUTPUT_VOICEXML_SHORT);
-            storeVoiceXMLOutput(file);
+            String outputFile = cmd.getOptionValue(OPTION_OUTPUT_VOICEXML_SHORT);
+            runVoiceXMLComponent(inputFile, outputFile, references);
         }
-        if (cmd.hasOption(OPTION_OUTPUT_SRGS_SHORT)) {
-            log.info("Evaluating option " + OPTION_OUTPUT_SRGS_SHORT);
-            String file = cmd.getOptionValue(OPTION_OUTPUT_SRGS_SHORT);
-            storeSRGSOutput(file);
+        else {
+            runVoiceXMLComponent(inputFile, null, references);
         }
     }
 
     /**
-     * Loads input file and check it if it is valid SCXML. FileNotFoundException is thrown if not.
+     * Loads input file and check it if it is valid SCXML. InvalidScxmlException is thrown if it is not valid.
      */
-    private static void loadInputFile(String inputFile) throws IOException, SAXException {
-        File file = new File(inputFile);
+    private static void validateInputFile(String inputFile) throws IOException, SAXException, InvalidScxmlException {
+        File xmlInputFile = new File(inputFile);
         File schemaFile = new File(XSD_SCXML);
+        String output;
 
         //validation part
-        log.debug("opening file '" + file + "'");
-        try (InputStream inputStream = new FileInputStream(file)) {
+        log.debug("opening file '" + xmlInputFile + "'");
+        try (InputStream inputStream = new FileInputStream(xmlInputFile)) {
             Source source = new SAXSource(new InputSource(inputStream));
             log.debug("Creating validator");
             Schema schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(schemaFile);
             Validator validator = schema.newValidator();
             try {
-                log.info("validating input file '" + file + "'");
+                log.info("validating input file '" + xmlInputFile + "'");
                 validator.validate(source);
             } catch (SAXException e) {
-                log.warn("Input file '" + file + "' is not valid", e);
-                System.err.println("Input file '" + file + "' is not valid SCXML file: " + e.getLocalizedMessage());
-                valid = false;
-                return;
+                throw new InvalidScxmlException(inputFile + "' is not valid SCXML file: " + e.getLocalizedMessage());
             }
         }
-
-        System.out.println("Input file is valid SCXML file.");
-
-        //TODO: loading part
-
-    }
-
-    /**
-     * Calls the component for generating VoiceXML output and stores it into given file.
-     */
-    private static void storeVoiceXMLOutput(String outputFile) {
-        //TODO: call component and store output
     }
 
     /**
      * Calls the component for generating SRGS output and stores it into given file.
      */
-    private static void storeSRGSOutput(String outputFile) {
-        //TODO: call component and store output
+    private static Map<String, String> runSRGSComponent(String inputFile, String outputFile) throws IOException {
+        //TODO the rest (not only references, but also creating file?)
+        Srgs component = new SrgsImpl();
+        Map<String, String> retval;
+        try (InputStream is = new FileInputStream(inputFile)) {
+            retval = component.getSrgsReferences(is);
+        }
+        return retval;
+    }
+
+    /**
+     * Calls the component for generating VoiceXML output and stores it into given file.
+     */
+    private static void runVoiceXMLComponent(String inputFile, String outputFile, GrammarReference grammars) throws IOException {
+        ScxmlToVoicexmlConverterFactory factory = new ScxmlToVoicexmlConverterFactory();
+        ScxmlToVoicexmlConverter component = factory.createConverter();
+        String vxml;
+        try (InputStream is = new FileInputStream(inputFile)) {
+            vxml = component.convert(is, grammars);
+        }
+
+        OutputStream os;
+        if (outputFile != null) {
+            os = new FileOutputStream(outputFile);
+        }
+        else {
+            os = System.out;
+        }
+        try {
+            os.write(vxml.getBytes());
+            os.flush();
+        } finally {
+            os.close();
+        }
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
