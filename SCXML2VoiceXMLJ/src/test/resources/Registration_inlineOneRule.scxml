@@ -50,7 +50,14 @@
               <vxml:prompt count="2">Ano nebo ne?</vxml:prompt>
           </onentry>
           <datamodel>
-           <data id="yesno" expr="./registration.grxml#anone"/>
+           <data id="yesno">
+               <rule id="anone">
+                   <one-of>
+                       <item>ano</item>
+                       <item>ne</item>
+                   </one-of>
+               </rule>
+           </data>
           </datamodel>
           <transition event="ne" target="Start" />
           <transition event="ano" target="Submit" />

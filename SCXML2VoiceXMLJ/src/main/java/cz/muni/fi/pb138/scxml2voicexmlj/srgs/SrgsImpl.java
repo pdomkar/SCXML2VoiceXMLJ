@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.srgs;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -60,6 +62,8 @@ public class SrgsImpl implements Srgs {
         Transformer transformer = null;
         boolean grxmlFileUsed = false;  // If there are no inline grammars in the input scxml file 
                                         // the output grxml file will not be created.
+        DocumentBuilder builder = null;
+        Document rulesDoc = null;
         
         NodeList stateElems = doc.getElementsByTagName("state");
         for (int i = 0; i < stateElems.getLength(); i++) {
@@ -69,10 +73,14 @@ public class SrgsImpl implements Srgs {
                 Element datamodel = (Element) datamodelElems.item(0);
                 NodeList dataElems = datamodel.getElementsByTagName("data");
                 if (datamodelElems.getLength() == 1) {  // TODO: what to do if there is more than 1 <data> element?
-                    Element data = (Element) dataElems.item(0);
+                    Node dataNode = dataElems.item(0);
+                    Element data = (Element) dataNode;
                     if (data.hasAttribute("expr")) {
                         result.put(state.getAttribute("id"), "<grammar src=\"" + data.getAttribute("expr") + "\"/>");
                     } else {
+                        
+                        Element grammar = null;
+                        
                         // inline grammar inside of <data> element
                         if (!grxmlFileUsed) {
                             // open the output grxml file
@@ -86,24 +94,34 @@ public class SrgsImpl implements Srgs {
                             // create a trasformer for writing rules to the output grxml file
                             try {
                                 transformer = TransformerFactory.newInstance().newTransformer();
+                                transformer.setOutputProperty(OutputKeys.INDENT, "yes"); // so that the output grxml file is nicely formatted 
                             } catch (TransformerConfigurationException ex) {
                                 Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
                             }
                             
-                            writeGrxmlHeader(grxmlFileWriter);
+                            try {
+                                builder = factory.newDocumentBuilder();
+                                rulesDoc = builder.newDocument();
+                            } catch (ParserConfigurationException ex) {
+                                Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            grammar = rulesDoc.createElement("grammar");
+                            rulesDoc.appendChild(grammar);
+                            //writeGrxmlHeader(grxmlFileWriter);/////
                             grxmlFileUsed = true;
                         }
                         
                         // write the rules inside the <data> element to the grxml output file and reference them 
+                        
+                        
                         NodeList ruleElems = data.getElementsByTagName("rule");
                         if (ruleElems.getLength() == 1) {
                             Node ruleNode = ruleElems.item(0);
                             Element rule = (Element) ruleNode;
-                            try {
-                                transformer.transform(new DOMSource(ruleNode), new StreamResult(grxmlFileWriter));
-                            } catch (TransformerException ex) {
-                                Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+                            
+                            rulesDoc.getElementsByTagName("grammar").item(0).appendChild(rulesDoc.importNode(ruleNode, true));
+                            
+                            
                             result.put(state.getAttribute("id"), "<grammar src=\"" + grxmlFileName + "#" + rule.getAttribute("id") + "\"/>");
                         } else {
                             // TODO: multiple rules (see <data id="Finishing"> in Registration_inlineMultipleRules.scxml) 
@@ -116,7 +134,13 @@ public class SrgsImpl implements Srgs {
         }
         
         if (grxmlFileUsed) {
-            writeGrxmlFooter(grxmlFileWriter);
+            DOMSource ruleNodeDOMSource = new DOMSource(rulesDoc);
+            try {
+                transformer.transform(ruleNodeDOMSource, new StreamResult(grxmlFileWriter));
+            } catch (TransformerException ex) {
+                Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            //writeGrxmlFooter(grxmlFileWriter);/////
             try {
                 grxmlFileWriter.close();
             } catch (IOException ex) {
