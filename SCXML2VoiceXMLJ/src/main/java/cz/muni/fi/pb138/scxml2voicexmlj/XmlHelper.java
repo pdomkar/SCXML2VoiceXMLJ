@@ -9,110 +9,113 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.ArrayList;
+import static java.util.Arrays.asList;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.jdom2.Attribute;
+import org.jdom2.Content;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.XMLOutputter;
+import org.jdom2.transform.XSLTransformException;
+import org.jdom2.transform.XSLTransformer;
+import org.jdom2.xpath.XPathFactory;
 
 public class XmlHelper {
 
-    private XPath xpath;
+    private XPathFactory xpath;
     private DocumentBuilder docBuilder;
 
     public XmlHelper() {
         try {
-            xpath = XPathFactory.newInstance().newXPath();
-            /*  DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-             dbf.setNamespaceAware(true);
-             docBuilder = dbf.newDocumentBuilder();*/
-            docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            xpath = XPathFactory.instance();
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
+            docBuilder = dbf.newDocumentBuilder();
+            //   docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Element transformElement(Element source, String transformation) {
-        try (InputStream stylesheet = getClass().getResourceAsStream(transformation)) {
-            Transformer transformer = TransformerFactory.newInstance().newTransformer(new StreamSource(stylesheet));
-            DOMResult result = new DOMResult();
-            transformer.transform(new DOMSource(source), result);
-            return (Element) result.getNode().getFirstChild();
-        } catch (TransformerException | IOException e) {
+    public Element transformElement(Element source, String stylesheetName) {
+
+        try (InputStream stylesheet = getClass().getResourceAsStream(stylesheetName)) {
+            XSLTransformer transformer = new XSLTransformer(stylesheet);
+            return (Element) transformer.transform(asList((Content) source)).get(0);
+        } catch (IOException | XSLTransformException e) {
             throw new RuntimeException(e);
         }
+
+        /*   try (InputStream stylesheet = getClass().getResourceAsStream(stylesheet)) {
+         Transformer transformer = TransformerFactory.newInstance().newTransformer(new StreamSource(stylesheet));
+         JDOMResult result = new JDOMResult();
+         transformer.transform(new JDOMSource(source), result);
+         return (Element) result.getResult().get(0);
+         } catch (IOException | TransformerException e) {
+         throw new RuntimeException(e);
+         }*/
     }
 
-    public Element adoptElement(Element source, Document parent) {
-        Element adopted = (Element) source.cloneNode(true);
-        parent.adoptNode(adopted);
-        return adopted;
-    }
-
-    public String render(Node domTree) {
+    /*
+     public String render(Content domTree) {
+     try {
+     Transformer transformer = TransformerFactory.newInstance().newTransformer();
+     StreamResult result = new StreamResult(new StringWriter());
+     DOMSource source = new DOMSource(domTree);
+     transformer.transform(source, result);
+     String xmlString = result.getWriter().toString();
+     return xmlString;
+     } catch (TransformerException | TransformerFactoryConfigurationError e) {
+     throw new RuntimeException(e);
+     }
+     }*/
+    public String render(Content xml) {
         try {
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            StreamResult result = new StreamResult(new StringWriter());
-            DOMSource source = new DOMSource(domTree);
-            transformer.transform(source, result);
-            String xmlString = result.getWriter().toString();
-            return xmlString;
-        } catch (TransformerException | TransformerFactoryConfigurationError e) {
+            XMLOutputter out = new XMLOutputter();
+            StringWriter writer = new StringWriter();
+            out.output(asList(xml), writer);
+            return writer.toString();
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public NodeList executeXpath(Node root, String query) {
+    public String render(Document xml) {
         try {
-            XPathExpression expr = xpath.compile(query);
-            return (NodeList) expr.evaluate(root, XPathConstants.NODESET);
-        } catch (XPathExpressionException e) {
+            XMLOutputter out = new XMLOutputter();
+            StringWriter writer = new StringWriter();
+            out.output(xml, writer);
+            return writer.toString();
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Element executeXpathSingleElement(Node root, String query) {
-        List<Element> selected = toElementList(executeXpath(root, query));
+    public List<Object> executeXpath(Object root, String query) {
+        return xpath.compile(query).evaluate(root);
+    }
+
+    public Element executeXpathSingleElement(Object root, String query) {
+        List<Object> selected = executeXpath(root, query);
         if (selected.size() != 1) {
             throw new IllegalArgumentException("Exactly one element must match the query " + query
                     + " to extract the one element, got " + selected);
         }
-        return selected.get(0);
-    }
-
-    public List<Element> toElementList(NodeList nodelist) {
-        List<Element> elementList = new ArrayList<>(nodelist.getLength());
-        for (int i = 0; i < nodelist.getLength(); i++) {
-            Node node = nodelist.item(i);
-            if (node instanceof Element) {
-                elementList.add((Element) nodelist.item(i));
-            }
+        if (!(selected.get(0) instanceof Element)) {
+            throw new IllegalArgumentException("Selected content is not Element: " + selected.get(0));
         }
-        return elementList;
+        return (Element) selected.get(0);
     }
 
     public String extractAttribute(Element element, String name) {
-        String attribute = element.getAttribute(name);
-        if (attribute.isEmpty()) {
+        Attribute attribute = element.getAttribute(name);
+        if (attribute == null) {
             throw new IllegalArgumentException("Element " + element + " doesnt have attribute " + name);
         }
-        return attribute;
+        return attribute.getValue();
     }
 
     public Document parseFile(String name) {
@@ -123,19 +126,12 @@ public class XmlHelper {
         return parseStream(new ByteArrayInputStream(xml.getBytes()));
     }
 
-    public Element parseXmlToElement(String xml) {
-        return executeXpathSingleElement(parseXmlToDocument(xml), "/*");
-    }
-
     public Document parseStream(InputStream xml) {
         try {
-            return docBuilder.parse(xml);
+            SAXBuilder builder = new SAXBuilder();
+            return builder.build(xml);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public Document createDocument() {
-        return docBuilder.newDocument();
     }
 }

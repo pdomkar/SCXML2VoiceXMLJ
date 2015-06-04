@@ -5,18 +5,13 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.xslt;
 
+import static cz.muni.fi.pb138.scxml2voicexmlj.voicexml.xslt.XsltStateStackConverter.NS_VXML;
 import java.util.List;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.jdom2.Element;
 
 public class ConditionalTransitionsAssembler implements AssemblerResult<Element> {
 
-    private Document parent;
     private Element ifRoot;
-
-    public ConditionalTransitionsAssembler(Document parent) {
-        this.parent = parent;
-    }
 
     @Override
     public Element result() {
@@ -33,15 +28,16 @@ public class ConditionalTransitionsAssembler implements AssemblerResult<Element>
 
     public void appendCondition(String name, String event, List<String> targets) {
         if (ifRoot == null) {
-            ifRoot = parent.createElementNS("http://www.w3.or/2001/vxml", "if");
+            ifRoot = new Element("if", NS_VXML);
+            //ifRoot = parent.createElementNS("http://www.w3.or/2001/vxml", "if");
             appendExpr(ifRoot, name, event);
-            ifRoot.appendChild(createClear(targets));
+            ifRoot.addContent(createClear(targets));
             return;
         }
-        Element cond = parent.createElementNS("http://www.w3.or/2001/vxml", "elseif");
+        Element cond = new Element("elseif", NS_VXML);
         appendExpr(cond, name, event);
-        ifRoot.appendChild(cond);
-        ifRoot.appendChild(createClear(targets));
+        ifRoot.addContent(cond);
+        ifRoot.addContent(createClear(targets));
     }
 
     private void appendExpr(Element cond, String name, String event) {
@@ -56,7 +52,7 @@ public class ConditionalTransitionsAssembler implements AssemblerResult<Element>
             }
             joinedTargets.append(targets.get(i));
         }
-        Element clear = parent.createElementNS("http://www.w3.or/2001/vxml", "clear");
+        Element clear = new Element("clear", NS_VXML);// parent.createElementNS("http://www.w3.or/2001/vxml", "clear");
         clear.setAttribute("namelist", joinedTargets.toString());
         return clear;
     }

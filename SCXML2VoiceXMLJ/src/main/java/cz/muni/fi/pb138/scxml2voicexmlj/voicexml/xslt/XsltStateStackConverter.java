@@ -12,10 +12,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 public class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
+
+    static final Namespace NS_SCXML = Namespace.getNamespace("http://www.w3.org/2005/07/scxml");
+    static final Namespace NS_VXML = Namespace.getNamespace("http://www.w3.org/2001/vxml");
 
     private XmlHelper helper = new XmlHelper();
 
@@ -23,19 +27,27 @@ public class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
     public String convert(InputStream scxmlContent, GrammarReference srgsReferences) {
         Document vxml = emptyVxmlDocument();
         Document scxml = helper.parseStream(scxmlContent);
-        Element form = helper.executeXpathSingleElement(vxml, "//*[local-name()='form']");
+        Element form = vxml.getRootElement().getChild("form", NS_VXML);// helper.executeXpathSingleElement(vxml, "//*[local-name()='form']");
         appendGrammarFile(form, srgsReferences);
-        List<Element> states = helper.toElementList(helper.executeXpath(scxml, "//*[local-name()='state']"));
+        List<Element> states = scxml.getRootElement().getChildren("state", NS_SCXML);
+        //List<Object> states = helper.executeXpath(scxml, "//*[local-name()='state']");
         for (Element field : transformStates(states, vxml, srgsReferences)) {
-            form.appendChild(field);
+            form.addContent(field);
         }
+        /*String initialName = helper.extractAttribute(helper.executeXpathSingleElement(scxml, "/*"), "initial");
+         Element initial = helper.executeXpathSingleElement(form, "//*[local-name()='field' and @name='" + initialName + "']");
+         appendInitialAssign(initial, initialName);*/
         return helper.render(vxml);
     }
 
     public void appendGrammarFile(Element form, GrammarReference srgsReferences) {
-        Element grammar = form.getOwnerDocument().createElement("grammar");
+        Element grammar = new Element("grammar", NS_VXML);
         grammar.setAttribute("src", srgsReferences.grammarFile());
-        form.appendChild(grammar);
+        form.addContent(grammar);
+        /*
+         Element grammar = form.getOwnerDocument().createElementNS("http://www.w3.or/2001/vxml", "grammar");
+         grammar.setAttribute("src", srgsReferences.grammarFile());
+         form.appendChild(grammar);*/
     }
 
     public void appendGrammarField(Element field, GrammarReference srgsReferences) {
@@ -54,40 +66,43 @@ public class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
         return helper.parseFile("/vxmlTemplate.xml");
     }
 
+    private void appendInitialAssign(Element initial, String name) {
+        Element filled = findFilledElementAppendLazyly(initial);
+        Element assign = initial.getOwnerDocument().createElement("assign");
+        assign.setAttribute("name", name);
+        assign.setAttribute("expr", "true");
+        filled.appendChild(assign);
+    }
+
     public List<Element> transformStates(List<Element> states, Document vxmlParent, GrammarReference grammarReference) {
         List<Element> transformed = new ArrayList<>();
         Stack<String> visitedStates = new Stack<>();
         for (Element state : states) {
             visitedStates.add(helper.extractAttribute(state, "id"));
-            Element field = commonScxmlToVxmlTransform(state, vxmlParent);
+            Element field = helper.transformElement(state, "/stateTransformation.xsl");
             AssemblerResult<Element> transitionsAssembler = assembleClearsForBackwardTransitions(state, visitedStates, vxmlParent);
             if (transitionsAssembler.isAvailable()) {
-                Element filled = appendFilledElementLazyly(field);
-                filled.appendChild(transitionsAssembler.result());
+                Element filled = findFilledElementAppendLazyly(field);
+                filled.addContent(transitionsAssembler.result());
             }
-            appendGrammarField(field, grammarReference);
+            //    appendGrammarField(field, grammarReference);
             transformed.add(field);
         }
         return transformed;
     }
 
-    public Element commonScxmlToVxmlTransform(Element state, Document vxmlParent) {
-        Element rawField = helper.transformElement(state, "/stateTransformation.xsl");
-        return helper.adoptElement(rawField, vxmlParent);
-    }
-
-    private Element appendFilledElementLazyly(Element field) {
-        if (helper.executeXpath(field, "*[local-name()='filled']").getLength() == 0) {
-            Element filled = field.getOwnerDocument().createElement("filled");
-            field.appendChild(filled);
+    private Element findFilledElementAppendLazyly(Element field) {
+        if (field.getChild("filled", NS_VXML) == null) {
+            Element filled = new Element("filled", NS_VXML);
+            field.addContent(filled);
         }
-        return helper.executeXpathSingleElement(field, "*[local-name()='filled']");
+        return field.getChild("filled", NS_VXML);
     }
 
     public AssemblerResult<Element> assembleClearsForBackwardTransitions(Element state, List<String> visitedStates, Document vxmlParent) {
         String stateName = helper.extractAttribute(state, "id");
-        List<Element> transitions = helper.toElementList(helper.executeXpath(state, "*[local-name()='transition']"));
-        ConditionalTransitionsAssembler clearBuilder = new ConditionalTransitionsAssembler(vxmlParent);
+        List<Element> transitions = state.getChildren("transition");// helper.toElementList(helper.executeXpath(state, "*[local-name()='transition']"));
+        ConditionalTransitionsAssembler clearBuilder = new ConditionalTransitionsAssembler();
         for (Element tra : transitions) {
             String target = helper.extractAttribute(tra, "target");
             String event = helper.extractAttribute(tra, "event");
