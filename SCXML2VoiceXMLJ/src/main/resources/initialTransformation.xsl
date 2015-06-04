@@ -6,7 +6,7 @@
     version="1.0"
     exclude-result-prefixes="scxml"> 
     <xsl:output method="xml"/>    
-    <xsl:template match="//scxml:state | //scxml:final" >
+    <xsl:template match="//scxml:state|//scxml:final" >
         <initial>
             <xsl:attribute name="name">
                 <xsl:value-of select="@id"/>
@@ -23,12 +23,25 @@
     </xsl:template>    
     
     <xsl:template match="scxml:onentry">
-        <xsl:copy-of select="node()"/> 
+        <xsl:apply-templates  select="node()" mode="copy-no-namespaces"/>
+        <!--   <xsl:copy-of select="node()"/> -->
     </xsl:template>
     
     <xsl:template match="scxml:onexit">
         <filled>
-            <xsl:copy-of select="node()"/> 
+            <xsl:apply-templates  select="node()" mode="copy-no-namespaces"/>
+            <!--     <xsl:copy-of select="node()"/> -->
         </filled>
+    </xsl:template>
+    
+    <xsl:template match="*" mode="copy-no-namespaces">
+        <xsl:element name="{local-name()}" namespace="{namespace-uri()}">
+            <xsl:copy-of select="@*"/>
+            <xsl:apply-templates select="node()" mode="copy-no-namespaces"/>
+        </xsl:element>
+    </xsl:template>
+
+    <xsl:template match="comment()| processing-instruction()" mode="copy-no-namespaces">
+        <xsl:copy/>
     </xsl:template>
 </xsl:stylesheet>

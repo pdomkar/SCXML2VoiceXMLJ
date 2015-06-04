@@ -31,7 +31,8 @@ public class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
         Document scxml = helper.parseStream(scxmlContent);
         Element form = vxml.getRootElement().getChild("form", NS_VXML);// helper.executeXpathSingleElement(vxml, "//*[local-name()='form']");
         appendGrammarFile(form, srgsReferences);
-        List<Element> states = scxml.getRootElement().getChildren("state", NS_SCXML);
+        List<Element> states = new ArrayList<>(scxml.getRootElement().getChildren("state", NS_SCXML));
+        states.addAll(scxml.getRootElement().getChildren("final", NS_SCXML));
         String initialName = helper.extractAttribute(scxml.getRootElement(), "initial");
         LinkedHashMap<Element, String> statesWithTransforms = new LinkedHashMap<>();
         for (Element state : states) {
