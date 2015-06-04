@@ -7,7 +7,7 @@
     exclude-result-prefixes="scxml"> 
     <xsl:output method="xml"/>    
     <xsl:template match="//scxml:state | //scxml:final" >
-        <field>
+        <initial>
             <xsl:attribute name="name">
                 <xsl:value-of select="@id"/>
             </xsl:attribute>
@@ -19,7 +19,7 @@
             <noinput count="3">
                 <exit/>
             </noinput>
-        </field>       
+        </initial>       
     </xsl:template>    
     
     <xsl:template match="scxml:onentry">

@@ -41,7 +41,6 @@ public class XmlHelper {
     }
 
     public Element transformElement(Element source, String stylesheetName) {
-
         try (InputStream stylesheet = getClass().getResourceAsStream(stylesheetName)) {
             XSLTransformer transformer = new XSLTransformer(stylesheet);
             return (Element) transformer.transform(asList((Content) source)).get(0);

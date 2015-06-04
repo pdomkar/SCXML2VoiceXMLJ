@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    
+          
+      
+    <field xmlns="http://www.w3.org/2001/vxml" name="Start">
+              <vxml:prompt xmlns:vxml="http://www.w3.org/2001/vxml" xmlns="http://www.w3.org/2005/07/scxml">Vítejte v registraci předmětů</vxml:prompt>
+          <filled>
+              <vxml:assign xmlns:vxml="http://www.w3.org/2001/vxml" xmlns="http://www.w3.org/2005/07/scxml" name="Start" expr="true"/>
+          </filled><nomatch count="3"><exit/></nomatch><noinput count="3"><exit/></noinput></field>
+    <field xmlns="http://www.w3.org/2001/vxml" name="Finishing">
+              <vxml:prompt xmlns:vxml="http://www.w3.org/2001/vxml" xmlns="http://www.w3.org/2005/07/scxml">Zadejte způsob ukončení.</vxml:prompt>
+              <vxml:prompt xmlns:vxml="http://www.w3.org/2001/vxml" xmlns="http://www.w3.org/2005/07/scxml" count="2">Možnosti jsou zkouška nebo zápočet.</vxml:prompt>
+          <nomatch count="3"><exit/></nomatch><noinput count="3"><exit/></noinput></field>
+    <field xmlns="http://www.w3.org/2001/vxml" name="Course">
+              <vxml:prompt xmlns:vxml="http://www.w3.org/2001/vxml" xmlns="http://www.w3.org/2005/07/scxml">Zadejte registrovaný předmět.</vxml:prompt>
+
+              <vxml:prompt xmlns:vxml="http://www.w3.org/2001/vxml" xmlns="http://www.w3.org/2005/07/scxml" count="2">Lze si zaregistrovat předměty PB095, PB125, PB162 nebo PA156.</vxml:prompt>
+          <nomatch count="3"><exit/></nomatch><noinput count="3"><exit/></noinput></field>
+    <field xmlns="http://www.w3.org/2001/vxml" name="All">
+              <vxml:prompt xmlns:vxml="http://www.w3.org/2001/vxml" xmlns="http://www.w3.org/2005/07/scxml">Zadal jste <vxml:value expr="Course"/>, ukončený <vxml:value expr="Finishing"/>. Souhlasíte?</vxml:prompt>
+              <vxml:prompt xmlns:vxml="http://www.w3.org/2001/vxml" xmlns="http://www.w3.org/2005/07/scxml" count="2">Ano nebo ne?</vxml:prompt>
+          <nomatch count="3"><exit/></nomatch><noinput count="3"><exit/></noinput></field>
+    <field xmlns="http://www.w3.org/2001/vxml" name="Submit">
+        <vxml:submit xmlns:vxml="http://www.w3.org/2001/vxml" xmlns="http://www.w3.org/2005/07/scxml" src="uri" namelist="Course Finishing"/>
+      <nomatch count="3"><exit/></nomatch><noinput count="3"><exit/></noinput></field>
