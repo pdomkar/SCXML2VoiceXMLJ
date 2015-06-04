@@ -25,7 +25,7 @@ public class SCXML2VoiceXMLJTest {
     public void testGoodInput() {
         System.out.println("Good input");
         String[] args = {"-i", "src/test/resources/Registration.scxml"};
-        MainCommandLine.main(args);
+        SCXML2VoiceXMLJ.main(args);
     }
-  
+    
 }
