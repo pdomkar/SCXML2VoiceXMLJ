@@ -7,12 +7,17 @@ package cz.muni.fi.pb138.scxml2voicexmlj.voicexml;
 
 import cz.muni.fi.pb138.scxml2voicexmlj.GrammarReference;
 import cz.muni.fi.pb138.scxml2voicexmlj.XmlHelper;
+import static cz.muni.fi.pb138.scxml2voicexmlj.voicexml.XsltStateStackConverter.NS_SCXML;
+import static cz.muni.fi.pb138.scxml2voicexmlj.voicexml.XsltStateStackConverter.NS_VXML;
+import static cz.muni.fi.pb138.scxml2voicexmlj.voicexml.XsltStateStackConverter.TRANSFORM_INITIAL;
+import static cz.muni.fi.pb138.scxml2voicexmlj.voicexml.XsltStateStackConverter.TRANSFORM_STATE;
 import static java.util.Arrays.asList;
 import java.util.Collections;
+import java.util.Map;
 import org.jdom2.Element;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Matchers.anyString;
@@ -92,9 +97,26 @@ public class XsltStateStackConverterTest {
     }
 
     @Test
-    public void testBothBackwardsTransitionAndOnExit() {
-        fail();
+    public void testAppendGrammar() {
+        Element field = new Element("field", NS_VXML);
+        field.setAttribute("name", "A");
+        GrammarReference grammar = mock(GrammarReference.class);
+        when(grammar.stateHasGrammarReference("A")).thenReturn(true);
+        when(grammar.referenceForState("A")).thenReturn("ref");
+        conv.appendGrammarField(field, grammar);
+        assertEquals("ref", field.getChild("grammar", NS_VXML).getAttribute("src").getValue());
+    }
 
+    @Test
+    public void testMapTransformations() {
+        Element initial = new Element("state", NS_SCXML);
+        initial.setAttribute("id", "A");
+        Element normal = new Element("state", NS_SCXML);
+        normal.setAttribute("id", "B");
+        Map<Element, String> mappedTransforms = conv.assignTransformationsToStates(
+                asList(initial, normal), "A");
+        assertEquals(TRANSFORM_INITIAL, mappedTransforms.get(initial));
+        assertEquals(TRANSFORM_STATE, mappedTransforms.get(normal));
     }
 
     @Test

@@ -22,6 +22,9 @@ class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
     static final Namespace NS_SCXML = Namespace.getNamespace("http://www.w3.org/2005/07/scxml");
     static final Namespace NS_VXML = Namespace.getNamespace("http://www.w3.org/2001/vxml");
 
+    static final String TRANSFORM_INITIAL = "/initialTransformation.xsl";
+    static final String TRANSFORM_STATE = "/stateTransformation.xsl";
+
     private XmlHelper helper = new XmlHelper();
 
     @Override
@@ -46,9 +49,9 @@ class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
         LinkedHashMap<Element, String> statesWithTransforms = new LinkedHashMap<>();
         for (Element state : states) {
             if (helper.extractAttribute(state, "id").equals(initialState)) {
-                statesWithTransforms.put(state, "/initialTransformation.xsl");
+                statesWithTransforms.put(state, TRANSFORM_INITIAL);
             } else {
-                statesWithTransforms.put(state, "/stateTransformation.xsl");
+                statesWithTransforms.put(state, TRANSFORM_STATE);
             }
         }
         return statesWithTransforms;
