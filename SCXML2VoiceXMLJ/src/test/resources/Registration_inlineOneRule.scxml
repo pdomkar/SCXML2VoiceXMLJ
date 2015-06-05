@@ -32,14 +32,16 @@
           </onentry>
           <datamodel>
            <data id="CourseGrammar">
-               <rule id="predmet">
-                   <one-of>
-                       <item>pb095<tag>{$.predmet = 'pb095';}</tag></item>
-                       <item>pb125<tag>{$.predmet = 'pb125';}</tag></item>
-                       <item>pb162<tag>{$.predmet = 'pb162';}</tag></item>
-                       <item>pa156<tag>{$.predmet = 'pa156';}</tag></item>
-                   </one-of>
-               </rule>
+               <grammar root="predmet">
+                <rule id="predmet">
+                    <one-of>
+                        <item>pb095<tag>{$.predmet = 'pb095';}</tag></item>
+                        <item>pb125<tag>{$.predmet = 'pb125';}</tag></item>
+                        <item>pb162<tag>{$.predmet = 'pb162';}</tag></item>
+                        <item>pa156<tag>{$.predmet = 'pa156';}</tag></item>
+                    </one-of>
+                </rule>
+               </grammar>
            </data>
           </datamodel>
           <transition event="Course" target="All"/>
@@ -51,12 +53,14 @@
           </onentry>
           <datamodel>
            <data id="yesnoGrammar">
-               <rule id="anone">
-                   <one-of>
-                       <item>ano</item>
-                       <item>ne</item>
-                   </one-of>
-               </rule>
+               <grammar root="anone">
+                <rule id="anone">
+                    <one-of>
+                        <item>ano</item>
+                        <item>ne</item>
+                    </one-of>
+                </rule>
+               </grammar>
            </data>
           </datamodel>
           <transition event="ne" target="Start" />

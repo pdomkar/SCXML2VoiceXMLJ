@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -57,14 +58,6 @@ public class SrgsImpl implements Srgs {
             Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
         } 
         
-        
-        OutputStreamWriter grxmlFileWriter = null;
-        Transformer transformer = null;
-        boolean grxmlFileUsed = false;  // If there are no inline grammars in the input scxml file 
-                                        // the output grxml file will not be created.
-        DocumentBuilder builder = null;
-        Document rulesDoc = null;
-        
         NodeList stateElems = doc.getElementsByTagName("state");
         for (int i = 0; i < stateElems.getLength(); i++) {
             Element state = (Element) stateElems.item(i);
@@ -78,94 +71,66 @@ public class SrgsImpl implements Srgs {
                     if (data.hasAttribute("expr")) {
                         result.put(state.getAttribute("id"), "<grammar src=\"" + data.getAttribute("expr") + "\"/>");
                     } else {
-                        
-                        Element grammar = null;
-                        
-                        // inline grammar inside of <data> element
-                        if (!grxmlFileUsed) {
-                            // open the output grxml file
-                            try {
-                                grxmlFileWriter = new OutputStreamWriter(new FileOutputStream(grxmlFileName));
-                            } catch (FileNotFoundException ex) { 
-                                // that file cannot be opened for writing
-                                Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+                        // an inline grammar inside of the <data> element
+                        NodeList grammarElems = data.getElementsByTagName("grammar");
+                        if (grammarElems.getLength() == 1) { 
+                            Node grammarNode = grammarElems.item(0);
+                            Element grammar = (Element) grammarNode;
                             
-                            // create a trasformer for writing rules to the output grxml file
+                            // create a trasformer for writing the grammar to a string
+                            Transformer transformer = null;
                             try {
                                 transformer = TransformerFactory.newInstance().newTransformer();
-                                transformer.setOutputProperty(OutputKeys.INDENT, "yes"); // so that the output grxml file is nicely formatted 
+                                transformer.setOutputProperty(OutputKeys.INDENT, "yes");  // so that the output grxml file is nicely formatted 
+                                transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");  // we are generating an inline grammar for vxml, 
+                                                                                                        // so we don't want an XML declaration
                             } catch (TransformerConfigurationException ex) {
                                 Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
                             }
                             
+                            // create the grammar document
+                            DocumentBuilder builder = null;
+                            Document grammarDoc = null;
                             try {
                                 builder = factory.newDocumentBuilder();
-                                rulesDoc = builder.newDocument();
+                                grammarDoc = builder.newDocument();
                             } catch (ParserConfigurationException ex) {
                                 Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                            grammar = rulesDoc.createElement("grammar");
-                            rulesDoc.appendChild(grammar);
-                            //writeGrxmlHeader(grxmlFileWriter);/////
-                            grxmlFileUsed = true;
-                        }
-                        
-                        // write the rules inside the <data> element to the grxml output file and reference them 
-                        
-                        
-                        NodeList ruleElems = data.getElementsByTagName("rule");
-                        if (ruleElems.getLength() == 1) {
-                            Node ruleNode = ruleElems.item(0);
-                            Element rule = (Element) ruleNode;
+                            grammarDoc.appendChild(grammarDoc.importNode(grammarNode, true));
                             
-                            rulesDoc.getElementsByTagName("grammar").item(0).appendChild(rulesDoc.importNode(ruleNode, true));
+                            // transform the grammar into the string writer
+                            DOMSource grammarNodeDOMSource = new DOMSource(grammarDoc);
+                            StringWriter writer = new StringWriter();
+                            try {
+                                transformer.transform(grammarNodeDOMSource, new StreamResult(writer));
+                            } catch (TransformerException ex) {
+                                Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            try {
+                                writer.close();
+                            } catch (IOException ex) {
+                                Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                             
+                            // get the string from the string writer 
+                            String grammarStr = writer.getBuffer().toString();
                             
-                            result.put(state.getAttribute("id"), "<grammar src=\"" + grxmlFileName + "#" + rule.getAttribute("id") + "\"/>");
+                            // assign the state the inline grammar code to use in vxml
+                            result.put(state.getAttribute("id"), grammarStr);
                         } else {
-                            // TODO: multiple rules (see <data id="Finishing"> in Registration_inlineMultipleRules.scxml) 
-                            //          - how to determine which one of them is this state referencing??
-                            Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, new Exception("multiple rules not yet implemented"));
-                        }
+                            try {
+                                throw new Exception("there isn't exactly one <grammar> element in <data>");
+                            } catch (Exception ex) {
+                                Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        } 
                     }
                 }
-            }
-        }
-        
-        if (grxmlFileUsed) {
-            DOMSource ruleNodeDOMSource = new DOMSource(rulesDoc);
-            try {
-                transformer.transform(ruleNodeDOMSource, new StreamResult(grxmlFileWriter));
-            } catch (TransformerException ex) {
-                Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            //writeGrxmlFooter(grxmlFileWriter);/////
-            try {
-                grxmlFileWriter.close();
-            } catch (IOException ex) {
-                Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         
         return result;
     }
     
-    private void writeGrxmlHeader(OutputStreamWriter writer) {
-        try {
-            writer.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                         "<grammar>");
-        } catch (IOException ex) {
-            Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    private void writeGrxmlFooter(OutputStreamWriter writer) {
-        try {
-            writer.write("</grammar>");
-        } catch (IOException ex) {
-            Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
 }

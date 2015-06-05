@@ -21,29 +21,31 @@
           </onentry>
           <datamodel>
             <data id="FinishingGrammar">
-                <rule id="ukonceni">
-                    <one-of>
-                        <item tag="zkouska">
-                            <ruleref uri="#zkouska"/>
-                        </item>
-                        <item tag="zapocet">
-                            <ruleref uri="#zapocet"/>
-                        </item>
-                    </one-of>
-                </rule>
-                <rule id="zkouska">
-                    <one-of>
-                        <item>zkouskou</item>
-                        <item>zkousku</item>
-                        <item>zkouska</item>
-                    </one-of>
-                </rule>
-                <rule id="zapocet">
-                    <one-of>
-                        <item>zapoctem</item>
-                        <item>zapocet</item>
-                    </one-of>
-                </rule>
+                <grammar root="ukonceni">
+                    <rule id="ukonceni">
+                        <one-of>
+                            <item tag="zkouska">
+                                <ruleref uri="#zkouska"/>
+                            </item>
+                            <item tag="zapocet">
+                                <ruleref uri="#zapocet"/>
+                            </item>
+                        </one-of>
+                    </rule>
+                    <rule id="zkouska">
+                        <one-of>
+                            <item>zkouskou</item>
+                            <item>zkousku</item>
+                            <item>zkouska</item>
+                        </one-of>
+                    </rule>
+                    <rule id="zapocet">
+                        <one-of>
+                            <item>zapoctem</item>
+                            <item>zapocet</item>
+                        </one-of>
+                    </rule>
+                </grammar>
             </data>
           </datamodel>
           <transition event="Finishing" target="All"/>
@@ -56,14 +58,16 @@
           </onentry>
           <datamodel>
            <data id="CourseGrammar">
-               <rule id="predmet">
-                   <one-of>
-                       <item>pb095<tag>{$.predmet = 'pb095';}</tag></item>
-                       <item>pb125<tag>{$.predmet = 'pb125';}</tag></item>
-                       <item>pb162<tag>{$.predmet = 'pb162';}</tag></item>
-                       <item>pa156<tag>{$.predmet = 'pa156';}</tag></item>
-                   </one-of>
-               </rule>
+               <grammar root="predmet">
+                <rule id="predmet">
+                    <one-of>
+                        <item>pb095<tag>{$.predmet = 'pb095';}</tag></item>
+                        <item>pb125<tag>{$.predmet = 'pb125';}</tag></item>
+                        <item>pb162<tag>{$.predmet = 'pb162';}</tag></item>
+                        <item>pa156<tag>{$.predmet = 'pa156';}</tag></item>
+                    </one-of>
+                </rule>
+               </grammar>
            </data>
           </datamodel>
           <transition event="Course" target="All"/>
