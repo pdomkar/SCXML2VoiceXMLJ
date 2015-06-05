@@ -162,7 +162,7 @@ public final class MainCommandLine {
         Srgs component = new SrgsImpl();
         Map<String, String> retval;
         try (InputStream is = new FileInputStream(inputFile)) {
-            retval = component.getSrgsReferences(is, outputFile);
+            retval = component.getSrgsReferences(is);
         }
         return retval;
     }
