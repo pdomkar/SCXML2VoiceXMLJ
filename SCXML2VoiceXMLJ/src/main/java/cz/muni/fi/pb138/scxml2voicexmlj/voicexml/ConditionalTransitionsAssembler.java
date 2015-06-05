@@ -15,7 +15,7 @@ public class ConditionalTransitionsAssembler implements AssemblerResult<Element>
 
     @Override
     public Element result() {
-        if (ifRoot == null) {
+        if (!isAvailable()) {
             throw new IllegalStateException("No conditions set");
         }
         return ifRoot;
@@ -26,10 +26,20 @@ public class ConditionalTransitionsAssembler implements AssemblerResult<Element>
         return ifRoot != null;
     }
 
+    /**
+     * Add the initial {@code if} if there are no conditions yet, or {@code elseif} otherwise.
+     * The product is following
+     * <pre> &lt;if expr="NAME=='EVENT'"&gt;
+     *    &lt;clear namelist="TARGET1 TARGET2.." /&gt;
+     * &lt;/if&gt;</pre>
+     * with additional elseifs and clears between the clear and closing if
+     * @param name    of the event
+     * @param event   which triggers the transition
+     * @param targets to be cleared
+     */
     public void appendCondition(String name, String event, List<String> targets) {
         if (ifRoot == null) {
             ifRoot = new Element("if", NS_VXML);
-            //ifRoot = parent.createElementNS("http://www.w3.or/2001/vxml", "if");
             appendExpr(ifRoot, name, event);
             ifRoot.addContent(createClear(targets));
             return;
