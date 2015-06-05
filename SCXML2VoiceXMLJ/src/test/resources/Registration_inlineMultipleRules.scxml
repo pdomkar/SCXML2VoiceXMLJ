@@ -20,7 +20,7 @@
               <vxml:prompt count="2">Možnosti jsou zkouška nebo zápočet.</vxml:prompt>
           </onentry>
           <datamodel>
-            <data id="Finishing">
+            <data id="FinishingGrammar">
                 <rule id="ukonceni">
                     <one-of>
                         <item tag="zkouska">
@@ -55,7 +55,7 @@
               <vxml:prompt count="2">Lze si zaregistrovat předměty PB095, PB125, PB162 nebo PA156.</vxml:prompt>
           </onentry>
           <datamodel>
-           <data id="Course">
+           <data id="CourseGrammar">
                <rule id="predmet">
                    <one-of>
                        <item>pb095<tag>{$.predmet = 'pb095';}</tag></item>
@@ -74,7 +74,7 @@
               <vxml:prompt count="2">Ano nebo ne?</vxml:prompt>
           </onentry>
           <datamodel>
-           <data id="yesno" expr="./registration.grxml#anone"/>
+           <data id="yesnoGrammar" expr="./registration.grxml#anone"/>
           </datamodel>
           <transition event="ne" target="Start" />
           <transition event="ano" target="Submit" />
