@@ -5,6 +5,8 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.xslt;
 
+import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.AssemblerResult;
+import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.XsltStateStackConverter;
 import cz.muni.fi.pb138.scxml2voicexmlj.GrammarReference;
 import cz.muni.fi.pb138.scxml2voicexmlj.XmlHelper;
 import java.io.IOException;

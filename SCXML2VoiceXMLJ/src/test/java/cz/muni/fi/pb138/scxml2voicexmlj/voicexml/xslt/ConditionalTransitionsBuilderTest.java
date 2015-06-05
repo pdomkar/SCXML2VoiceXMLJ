@@ -5,6 +5,7 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.xslt;
 
+import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.ConditionalTransitionsAssembler;
 import cz.muni.fi.pb138.scxml2voicexmlj.XmlHelper;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertThat;

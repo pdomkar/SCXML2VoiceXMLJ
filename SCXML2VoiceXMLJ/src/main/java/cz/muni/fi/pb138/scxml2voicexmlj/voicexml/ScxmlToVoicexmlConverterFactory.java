@@ -5,8 +5,6 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml;
 
-import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.xslt.XsltStateStackConverter;
-
 public class ScxmlToVoicexmlConverterFactory {
 
     /**

@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.muni.fi.pb138.scxml2voicexmlj.voicexml.xslt;
+package cz.muni.fi.pb138.scxml2voicexmlj.voicexml;
 
-import static cz.muni.fi.pb138.scxml2voicexmlj.voicexml.xslt.XsltStateStackConverter.NS_VXML;
+import static cz.muni.fi.pb138.scxml2voicexmlj.voicexml.XsltStateStackConverter.NS_VXML;
 import java.util.List;
 import org.jdom2.Element;
 
