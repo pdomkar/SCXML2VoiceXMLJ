@@ -5,7 +5,7 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.voicexml;
 
-public interface AssemblerResult<T> {
+interface AssemblerResult<T> {
 
     /**
      * Obtain the thing this assembler is building. Call {@code isAvailable()} to ensure

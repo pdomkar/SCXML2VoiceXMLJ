@@ -7,7 +7,6 @@ package cz.muni.fi.pb138.scxml2voicexmlj.voicexml;
 
 import cz.muni.fi.pb138.scxml2voicexmlj.GrammarReference;
 import cz.muni.fi.pb138.scxml2voicexmlj.XmlHelper;
-import cz.muni.fi.pb138.scxml2voicexmlj.voicexml.ScxmlToVoicexmlConverter;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -18,7 +17,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 
-public class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
+class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
 
     static final Namespace NS_SCXML = Namespace.getNamespace("http://www.w3.org/2005/07/scxml");
     static final Namespace NS_VXML = Namespace.getNamespace("http://www.w3.org/2001/vxml");

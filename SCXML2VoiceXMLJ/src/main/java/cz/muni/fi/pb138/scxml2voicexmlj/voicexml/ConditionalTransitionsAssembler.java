@@ -9,7 +9,7 @@ import static cz.muni.fi.pb138.scxml2voicexmlj.voicexml.XsltStateStackConverter.
 import java.util.List;
 import org.jdom2.Element;
 
-public class ConditionalTransitionsAssembler implements AssemblerResult<Element> {
+class ConditionalTransitionsAssembler implements AssemblerResult<Element> {
 
     private Element ifRoot;
 
