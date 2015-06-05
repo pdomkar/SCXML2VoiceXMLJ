@@ -11,8 +11,6 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import static java.util.Arrays.asList;
 import java.util.List;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.jdom2.Attribute;
 import org.jdom2.Content;
 import org.jdom2.Document;
@@ -25,21 +23,11 @@ import org.jdom2.xpath.XPathFactory;
 
 public class XmlHelper {
 
-    private XPathFactory xpath;
-    private DocumentBuilder docBuilder;
+    private XPathFactory xpath = XPathFactory.instance();
 
-    public XmlHelper() {
-        try {
-            xpath = XPathFactory.instance();
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setNamespaceAware(true);
-            docBuilder = dbf.newDocumentBuilder();
-            //   docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    /**
+     * Use provided XSL transform from resources to transform {@code source}
+     */
     public Element transformElement(Element source, String stylesheetName) {
         try (InputStream stylesheet = getClass().getResourceAsStream(stylesheetName)) {
             XSLTransformer transformer = new XSLTransformer(stylesheet);
@@ -47,30 +35,8 @@ public class XmlHelper {
         } catch (IOException | XSLTransformException e) {
             throw new RuntimeException(e);
         }
-
-        /*   try (InputStream stylesheet = getClass().getResourceAsStream(stylesheet)) {
-         Transformer transformer = TransformerFactory.newInstance().newTransformer(new StreamSource(stylesheet));
-         JDOMResult result = new JDOMResult();
-         transformer.transform(new JDOMSource(source), result);
-         return (Element) result.getResult().get(0);
-         } catch (IOException | TransformerException e) {
-         throw new RuntimeException(e);
-         }*/
     }
 
-    /*
-     public String render(Content domTree) {
-     try {
-     Transformer transformer = TransformerFactory.newInstance().newTransformer();
-     StreamResult result = new StreamResult(new StringWriter());
-     DOMSource source = new DOMSource(domTree);
-     transformer.transform(source, result);
-     String xmlString = result.getWriter().toString();
-     return xmlString;
-     } catch (TransformerException | TransformerFactoryConfigurationError e) {
-     throw new RuntimeException(e);
-     }
-     }*/
     public String render(Content xml) {
         try {
             XMLOutputter out = new XMLOutputter();
@@ -83,20 +49,17 @@ public class XmlHelper {
     }
 
     public String render(Document xml) {
-        try {
-            XMLOutputter out = new XMLOutputter();
-            StringWriter writer = new StringWriter();
-            out.output(xml, writer);
-            return writer.toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return render(xml.getRootElement());
     }
 
     public List<Object> executeXpath(Object root, String query) {
         return xpath.compile(query).evaluate(root);
     }
 
+    /**
+     * Execute xpath starting in {@code root}, result is expected to be single element
+     * @throws IllegalArgumentException if result is not one element
+     */
     public Element executeXpathSingleElement(Object root, String query) {
         List<Object> selected = executeXpath(root, query);
         if (selected.size() != 1) {
@@ -109,6 +72,10 @@ public class XmlHelper {
         return (Element) selected.get(0);
     }
 
+    /**
+     * Get attribute value from {@code element}
+     * @throws IllegalArgumentException if no such attribute is present
+     */
     public String extractAttribute(Element element, String name) {
         Attribute attribute = element.getAttribute(name);
         if (attribute == null) {
