@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<grammar root="init" xml:lang="cs-CZ">
+ <rule id="init">
+  <one-of>
+   <item>
+      <ruleref special="GARBAGE"/>
+      <item><ruleref uri="product"/> <tag>{$.product=$product;}</tag></item>
+      <tag>{$.mixed="true";}</tag>
+    </item>
+    <item>
+      <ruleref special="GARBAGE"/>
+      <item>
+       <ruleref uri="#product"/> 
+      </item>
+      <ruleref special="GARBAGE"/> 
+      <item>
+        <ruleref uri="#delivery"/>
+        <tag>{$.delivery = $delivery;}</tag>
+      </item>
+      <ruleref special="GARBAGE"/> 
+      <item>
+        <ruleref uri="#payment"/>
+        <tag>{$.payment = $payment;}</tag>
+      </item>
+      <tag>{$.mixed="true";}</tag>
+   </item>
+  </one-of>
+ </rule>
+ <rule id="product">
+   <one-of>
+    <item>ASUS<tag>{$.predmet = 'ASUS';}</tag></item>
+    <item>ACER<tag>{$.predmet = 'ACER';}</tag></item>
+    <item>HP<tag>{$.predmet = 'HP';}</tag></item>
+    <item>DELL<tag>{$.predmet = 'DELL';}</tag></item>
+    <item>LENOVO<tag>{$.predmet = 'LENOVO';}</tag></item>
+    <item>APPLE<tag>{$.predmet = 'APPLE';}</tag></item>
+   </one-of>
+ </rule>
+ <rule id="delivery">
+  <one-of>
+    <item>PPL</item>
+    <item>GLS</item>
+    <item>OSOBNĚ</item>
+  </one-of>
+ </rule>
+ <rule id="payment">
+  <one-of>
+   <item tag="hotove"><ruleref uri="hotove"/></item>
+   <item>PŘEVODEM</item>
+  </one-of>
+ </rule>
+ <rule id="hotove">
+  <one-of>
+   <item>HOTOVOST</item>
+   <item>HOTOVĚ</item>
+  </one-of>
+ </rule>
+ <rule id="anone">
+   <one-of>
+    <item>ano</item>
+    <item>ne</item>
+   </one-of>
+ </rule>
+</grammar>

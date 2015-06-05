@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:vxml="http://www.w3.org/2001/vxml" version="1.0" initial="Start">
+    <datamodel>
+        <data id="Grammar" expr="./order.grxml"/>
+    </datamodel>  
+    <state id="Start">
+        <onentry>
+            <vxml:prompt>Vítejte v eshopu notebooků</vxml:prompt>
+        </onentry>
+        <onexit>
+            <vxml:assign name="Start" expr="true"/>
+        </onexit>
+        <transition event="All" target="All" />
+        <transition event="Product" target="Delivery" />
+        <transition event="Product" target="Payment" />
+        <transition event="Delivery" target="Payment" />
+        <transition event="Delivery" target="Product" />
+        <transition event="Payment" target="Delivery" />
+        <transition event="Payment" target="Product" />
+    </state>
+    <state id="Product">
+        <onentry>
+            <vxml:prompt>Zadejte který produkt si chcete koupit</vxml:prompt>
+            <vxml:prompt count="2">Lze si koupit notebook ASUS, ACER, HP, DELL, LENOVO, APPLE</vxml:prompt>
+        </onentry>
+        <datamodel>
+            <data id="ProductGrammar" expr="./order.grxml#product"/>
+        </datamodel>
+        <transition event="Product" target="All"/>
+    </state>
+    <state id="Delivery">
+        <onentry>
+            <vxml:prompt>Zadejte způsob dopravy.</vxml:prompt>
+
+            <vxml:prompt count="2">Dotaz zboží lze pomocí PPL, GLS, OSOBNĚ</vxml:prompt>
+        </onentry>
+        <datamodel>
+            <data id="DeliveryGrammar" expr="./order.grxml#delivery"/>
+        </datamodel>
+        <transition event="Delivery" target="All"/>
+    </state>    
+    <state id="Payment">
+        <onentry>
+            <vxml:prompt>Zadejte způsob platby.</vxml:prompt>
+
+            <vxml:prompt count="2">Lze platit HOTOVĚ, PŘEVODEM</vxml:prompt>
+        </onentry>
+        <datamodel>
+            <data id="PaymentGrammar" expr="./order.grxml#payment"/>
+        </datamodel>
+        <transition event="Payment" target="All"/>
+    </state>
+    <state id="All">
+        <onentry>
+            <vxml:prompt>V košíku máte notebook <vxml:value expr="Product"/>, dodání <vxml:value expr="Delivery"/>, platba <vxml:value expr="Delivery"/>. Odeslat objednávku?</vxml:prompt>
+            <vxml:prompt count="2">Ano nebo ne?</vxml:prompt>
+        </onentry>
+        <datamodel>
+            <data id="yesnoGrammar" expr="./order.grxml#anone"/>
+        </datamodel>
+        <transition event="ne" target="Start" />
+        <transition event="ano" target="Submit" />
+    </state>
+    <final id="Submit">
+        <onentry>
+            <vxml:submit src="uri" namelist="Product Delivery Payment"/>
+        </onentry>
+        <onexit>
+            <vxml:prompt>Objednávka byla odeslána</vxml:prompt>
+        </onexit>
+    </final>
+</scxml>
