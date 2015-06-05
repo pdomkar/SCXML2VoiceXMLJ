@@ -28,32 +28,44 @@ class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
     public String convert(InputStream scxmlContent, GrammarReference srgsReferences) {
         Document vxml = emptyVxmlDocument();
         Document scxml = helper.parseStream(scxmlContent);
-        Element form = vxml.getRootElement().getChild("form", NS_VXML);// helper.executeXpathSingleElement(vxml, "//*[local-name()='form']");
+        Element form = vxml.getRootElement().getChild("form", NS_VXML);
         appendGrammarFile(form, srgsReferences);
         List<Element> states = new ArrayList<>(scxml.getRootElement().getChildren("state", NS_SCXML));
         states.addAll(scxml.getRootElement().getChildren("final", NS_SCXML));
         String initialName = helper.extractAttribute(scxml.getRootElement(), "initial");
+        List<Element> transformedVxmlStates = transformStates(assignTransformationsToStates(states, initialName), srgsReferences);
+        form.addContent(transformedVxmlStates);
+        return helper.render(vxml);
+    }
+
+    /**
+     * For every state select transformation which should be used on it.
+     * transformations are values associated with the state elements as keys
+     */
+    public LinkedHashMap<Element, String> assignTransformationsToStates(List<Element> states, String initialState) {
         LinkedHashMap<Element, String> statesWithTransforms = new LinkedHashMap<>();
         for (Element state : states) {
-            if (helper.extractAttribute(state, "id").equals(initialName)) {
+            if (helper.extractAttribute(state, "id").equals(initialState)) {
                 statesWithTransforms.put(state, "/initialTransformation.xsl");
             } else {
                 statesWithTransforms.put(state, "/stateTransformation.xsl");
             }
         }
-        //List<Object> states = helper.executeXpath(scxml, "//*[local-name()='state']");
-        for (Element field : transformStates(statesWithTransforms, srgsReferences)) {
-            form.addContent(field);
-        }
-        return helper.render(vxml);
+        return statesWithTransforms;
     }
 
+    /**
+     * Append element pointing to file with srgs grammar to the form
+     */
     public void appendGrammarFile(Element form, GrammarReference srgsReferences) {
         Element grammar = new Element("grammar", NS_VXML);
         grammar.setAttribute("src", srgsReferences.grammarFile());
         form.addContent(grammar);
     }
 
+    /**
+     * Append element pointing to reference inside the grammar file to the field
+     */
     public void appendGrammarField(Element field, GrammarReference srgsReferences) {
         String name = helper.extractAttribute(field, "name");
         if (!srgsReferences.stateHasGrammarReference(name)) {
@@ -69,19 +81,22 @@ class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
         return helper.parseFile("/vxmlTemplate.xml");
     }
 
-    /** Ordering has to be enforced */
+    /**
+     * Performs transformations on every state and adds grammar reference.
+     * Remembers which states were already visited so that clear elements for backward navigation can be created.
+     */
     public List<Element> transformStates(LinkedHashMap<Element, String> statesWithTransforms, GrammarReference grammarReference) {
         List<Element> transformed = new ArrayList<>();
         Stack<String> visitedStates = new Stack<>();
         for (Entry<Element, String> stateTransformPair : statesWithTransforms.entrySet()) {
             Element state = stateTransformPair.getKey();
             String transform = stateTransformPair.getValue();
+
             visitedStates.add(helper.extractAttribute(state, "id"));
             Element field = helper.transformElement(state, transform);
             AssemblerResult<Element> transitionsAssembler = assembleClearsForBackwardTransitions(state, visitedStates);
             if (transitionsAssembler.isAvailable()) {
-                System.out.println("hit");
-                Element filled = findFilledElementAppendLazyly(field);
+                Element filled = getFilledElementAppendLazyly(field);
                 filled.addContent(transitionsAssembler.result());
             }
             appendGrammarField(field, grammarReference);
@@ -90,7 +105,11 @@ class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
         return transformed;
     }
 
-    private Element findFilledElementAppendLazyly(Element field) {
+    /**
+     * Return the {@code <filled>} element of {@code field}.
+     * If it didnt exists, create it first
+     */
+    public Element getFilledElementAppendLazyly(Element field) {
         if (field.getChild("filled", NS_VXML) == null) {
             Element filled = new Element("filled", NS_VXML);
             field.addContent(filled);
@@ -98,16 +117,26 @@ class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
         return field.getChild("filled", NS_VXML);
     }
 
+    /**
+     * Assemble the structure containing conditional logic for navigating backwards in the dialogue.
+     * Ignore every transition pointing forward and for every transition pointing to an already visited state A
+     * create a {code clear} element with fields from the most recent state up to A in appropriate if/elseif struct.
+     * <p>
+     * E.g. if we are in C, have already visited A and B and C has two transitions, one pointing to D
+     * (event d) and the other to B (event b), the result of this method will be following
+     * <pre> &lt;if expr="C=='b'"&gt;
+     *    &lt;clear namelist="B C" /&gt;
+     * &lt;/if&gt;</pre>
+     * If there are no backward transitions, there will be no element to obtain from the result and
+     * its {@code isAvailable()} method returns false
+     */
     public AssemblerResult<Element> assembleClearsForBackwardTransitions(Element state, List<String> visitedStates) {
-        System.out.println(state);
-        System.out.println(visitedStates);
         String stateName = helper.extractAttribute(state, "id");
-        List<Element> transitions = state.getChildren("transition", NS_SCXML);// helper.toElementList(helper.executeXpath(state, "*[local-name()='transition']"));
+        List<Element> transitions = state.getChildren("transition", NS_SCXML);
         ConditionalTransitionsAssembler clearBuilder = new ConditionalTransitionsAssembler();
-        System.out.println(transitions);
-        for (Element tra : transitions) {
-            String target = helper.extractAttribute(tra, "target");
-            String event = helper.extractAttribute(tra, "event");
+        for (Element transition : transitions) {
+            String target = helper.extractAttribute(transition, "target");
+            String event = helper.extractAttribute(transition, "event");
             if (visitedStates.contains(target)) {
                 int from = visitedStates.indexOf(target);
                 int to = visitedStates.size();
