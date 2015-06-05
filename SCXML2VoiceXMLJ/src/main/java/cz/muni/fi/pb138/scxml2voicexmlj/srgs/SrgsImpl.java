@@ -81,7 +81,7 @@ public class SrgsImpl implements Srgs {
                             Transformer transformer = null;
                             try {
                                 transformer = TransformerFactory.newInstance().newTransformer();
-                                transformer.setOutputProperty(OutputKeys.INDENT, "yes");  // so that the output grxml file is nicely formatted 
+                                //transformer.setOutputProperty(OutputKeys.INDENT, "yes");  // so that the output grxml file is nicely formatted 
                                 transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");  // we are generating an inline grammar for vxml, 
                                                                                                         // so we don't want an XML declaration
                             } catch (TransformerConfigurationException ex) {
