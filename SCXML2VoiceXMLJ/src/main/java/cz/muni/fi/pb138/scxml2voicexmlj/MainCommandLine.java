@@ -165,30 +165,31 @@ public final class MainCommandLine {
         }
 
         String outputGrammarFilePath = retval.get(null);
-        OutputStream os;
-        if (outputFile != null) {
-            File f = new File(outputFile);
-            f.getParentFile().mkdirs();
-            f.createNewFile();
-            os = new FileOutputStream(f);
-        }
-        else {
-            os = System.out;
-        }
-
-        if (outputGrammarFilePath != null) { //there is whole file associated
-            StringBuilder sb = new StringBuilder();
-            try (InputStream is = new FileInputStream(outputGrammarFilePath)) {
-                while (is.available() > 0) {
-                    os.write(is.read());
-                }
+        if (!outputFile.equals(outputGrammarFilePath)) {
+            OutputStream os;
+            if (outputFile != null) {
+                File f = new File(outputFile);
+                f.getParentFile().mkdirs();
+                f.createNewFile();
+                os = new FileOutputStream(f);
+            } else {
+                os = System.out;
             }
-            retval.put(null, outputFile);
-        }
 
-        if (!os.equals(System.out)) {
-            os.close();
-            System.out.println("Output stored to " + outputFile);
+            if (outputGrammarFilePath != null) { //there is whole file associated
+                StringBuilder sb = new StringBuilder();
+                try (InputStream is = new FileInputStream(outputGrammarFilePath)) {
+                    while (is.available() > 0) {
+                        os.write(is.read());
+                    }
+                }
+                retval.put(null, outputFile);
+            }
+
+            if (!os.equals(System.out)) {
+                os.close();
+                System.out.println("Output stored to " + outputFile);
+            }
         }
 
         return retval;
