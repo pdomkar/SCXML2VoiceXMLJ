@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public interface Srgs {
     /**
-     * Extracts references to SRGS grammars SCXML input. The method takes the SCXML input 
+     * Extracts references to SRGS grammars from SCXML input. The method takes the SCXML input 
      * and for each <state> in it, it generates a string that is a reference to the grammar 
      * that belongs to that state. That string can then be used in VoiceXML (as the content 
      * of the `src` attribute of a `<grammar>` element) to refer to the grammar of the state.
