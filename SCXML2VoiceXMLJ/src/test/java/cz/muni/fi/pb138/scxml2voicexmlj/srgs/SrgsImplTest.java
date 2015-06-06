@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -29,7 +27,7 @@ import org.xml.sax.SAXException;
  */
 public class SrgsImplTest {
     @Test
-    public void testGetSrgsReferencesOnRegistrationScxml() throws FileNotFoundException, TransformerConfigurationException, TransformerException {
+    public void testGetSrgsReferencesOnRegistrationScxml() throws FileNotFoundException {
         InputStream in = new FileInputStream("src/test/resources/Registration.scxml");
         Map<String,String> correctReferences = new HashMap();
         //correctReferences.put("Grammar", "<grammar src=\"registrace.grxml\"/>"); // grammar from the <datamodel> of the whole file (no state) 
@@ -44,7 +42,7 @@ public class SrgsImplTest {
     
     
     @Test
-    public void testGetSrgsReferencesOnRegistration_inlineOneRule() throws FileNotFoundException, TransformerConfigurationException, TransformerException {
+    public void testGetSrgsReferencesOnRegistration_inlineOneRule() throws FileNotFoundException {
         InputStream in = new FileInputStream("src/test/resources/Registration_inlineOneRule.scxml");
         
         Srgs srgs = new SrgsImpl();
@@ -80,7 +78,7 @@ public class SrgsImplTest {
     
     
     @Test
-    public void testGetSrgsReferencesOnRegistration_inlineMultipleRules() throws FileNotFoundException, TransformerConfigurationException, TransformerException {
+    public void testGetSrgsReferencesOnRegistration_inlineMultipleRules() throws FileNotFoundException {
         InputStream in = new FileInputStream("src/test/resources/Registration_inlineMultipleRules.scxml");
         
         Srgs srgs = new SrgsImpl();
@@ -133,7 +131,7 @@ public class SrgsImplTest {
     
     
     @Test
-    public void testGetSrgsReferencesOnRegistration_singleStateScxml() throws FileNotFoundException, TransformerConfigurationException, TransformerException {
+    public void testGetSrgsReferencesOnRegistration_singleStateScxml() throws FileNotFoundException {
         InputStream in = new FileInputStream("src/test/resources/Registration_singleState.scxml");
         Map<String,String> correctReferences = new HashMap();
         correctReferences.put("Course", "<grammar src=\"./registration.grxml#predmet\"/>");
