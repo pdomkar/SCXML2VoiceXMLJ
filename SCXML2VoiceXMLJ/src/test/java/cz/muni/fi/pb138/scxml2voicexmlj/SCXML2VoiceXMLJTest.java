@@ -29,7 +29,7 @@ public class SCXML2VoiceXMLJTest {
     @Test
     public void testGoodInput() {
         System.out.println("Good input");
-        String[] args = {"-i", "src/main/resources/run-data/Registration.scxml", "-s", "src/main/resources/run-data/OUTPUT-grammar_", "-v", "src/main/resources/run-data/OUTPUT-voicexml.vxml"};
+        String[] args = {"-i", "src/main/resources/run-data/Registration.scxml", "-s", "src/main/resources/run-data/grammar.scxml", "-v", "src/main/resources/run-data/voicexml.scxml"};
         SCXML2VoiceXMLJ.main(args);
     }
     

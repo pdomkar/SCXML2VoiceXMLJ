@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 
 /**
- * Created by Wallecnik on 02.06.15.
+ * Main entrance
+ *
+ * @author Tomas Valka
+ * @version 1.0
  */
 public class SCXML2VoiceXMLJ {
 

@@ -25,8 +25,8 @@ import java.util.Map;
  * and stores or prints the output file. If any unexpected option is provided the program ends
  * without saving any data and prints an error.
  *
- * @author Wallecnik
- * @version 1.0-SNAPSHOT
+ * @author Tomas Valka
+ * @version 1.0
  */
 public final class MainCommandLine {
 

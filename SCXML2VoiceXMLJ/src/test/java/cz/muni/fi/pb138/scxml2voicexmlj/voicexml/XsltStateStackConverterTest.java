@@ -7,24 +7,18 @@ package cz.muni.fi.pb138.scxml2voicexmlj.voicexml;
 
 import cz.muni.fi.pb138.scxml2voicexmlj.GrammarReference;
 import cz.muni.fi.pb138.scxml2voicexmlj.XmlHelper;
-import static cz.muni.fi.pb138.scxml2voicexmlj.voicexml.XsltStateStackConverter.NS_SCXML;
-import static cz.muni.fi.pb138.scxml2voicexmlj.voicexml.XsltStateStackConverter.NS_VXML;
-import static cz.muni.fi.pb138.scxml2voicexmlj.voicexml.XsltStateStackConverter.TRANSFORM_INITIAL;
-import static cz.muni.fi.pb138.scxml2voicexmlj.voicexml.XsltStateStackConverter.TRANSFORM_STATE;
-import static java.util.Arrays.asList;
-import java.util.Collections;
-import java.util.Map;
 import org.jdom2.Element;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Matchers.anyString;
+
+import java.util.Collections;
+import java.util.Map;
+
+import static cz.muni.fi.pb138.scxml2voicexmlj.voicexml.XsltStateStackConverter.*;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import static org.xmlmatchers.XmlMatchers.isEquivalentTo;
 import static org.xmlmatchers.transform.XmlConverters.the;
 
@@ -118,5 +112,4 @@ public class XsltStateStackConverterTest {
         assertEquals(TRANSFORM_INITIAL, mappedTransforms.get(initial));
         assertEquals(TRANSFORM_STATE, mappedTransforms.get(normal));
     }
-
 }

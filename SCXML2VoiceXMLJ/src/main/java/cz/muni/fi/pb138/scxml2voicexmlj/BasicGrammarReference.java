@@ -3,7 +3,8 @@ package cz.muni.fi.pb138.scxml2voicexmlj;
 import java.util.Map;
 
 /**
- * Created by Wallecnik on 02.06.15.
+ * @author Tomas Valka
+ * @version 1.0
  */
 public class BasicGrammarReference implements GrammarReference {
 
