@@ -144,6 +144,12 @@ public class SrgsImpl implements Srgs {
                         }
                     } 
                 }
+            } else {
+                try {
+                    throw new Exception("there isn't exactly one <data> element in <datamodel>, this is not supported");
+                } catch (Exception ex) {
+                    Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
 
@@ -156,7 +162,7 @@ public class SrgsImpl implements Srgs {
             if (datamodelElems.getLength() == 1) {
                 Element datamodel = (Element) datamodelElems.item(0);
                 NodeList dataElems = datamodel.getElementsByTagName("data");
-                if (datamodelElems.getLength() == 1) {  // TODO: what to do if there is more than 1 <data> element?
+                if (dataElems.getLength() == 1) {  // TODO: what to do if there is more than 1 <data> element?
                     Node dataNode = dataElems.item(0);
                     Element data = (Element) dataNode;
                     if (data.hasAttribute("expr")) {
@@ -229,6 +235,12 @@ public class SrgsImpl implements Srgs {
                                 Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         } 
+                    }
+                } else {
+                    try {
+                        throw new Exception("there isn't exactly one <data> element in <datamodel>, this is not supported");
+                    } catch (Exception ex) {
+                        Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
