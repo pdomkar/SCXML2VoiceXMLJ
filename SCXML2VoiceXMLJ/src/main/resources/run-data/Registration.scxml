@@ -5,7 +5,7 @@
     </datamodel>  
     <state id="Start">
         <onentry>
-            <vxml:prompt>Vítejte v registraci předmětů</vxml:prompt>
+            <vxml:prompt>Welcome to registration system</vxml:prompt>
         </onentry>
         <onexit>
             <vxml:assign name="Start" expr="true"/>
@@ -16,8 +16,8 @@
     </state>
     <state id="Finishing">
         <onentry>
-            <vxml:prompt>Zadejte způsob ukončení.</vxml:prompt>
-            <vxml:prompt count="2">Možnosti jsou zkouška nebo zápočet.</vxml:prompt>
+            <vxml:prompt>Enter a way of termination</vxml:prompt>
+            <vxml:prompt count="2">Options are exam or credit</vxml:prompt>
         </onentry>
         <datamodel>
             <data id="FinishingGrammar" expr="./registration.grxml#ukonceni"/>
@@ -26,9 +26,9 @@
     </state>
     <state id="Course">
         <onentry>
-            <vxml:prompt>Zadejte registrovaný předmět.</vxml:prompt>
+            <vxml:prompt>Enter course</vxml:prompt>
 
-            <vxml:prompt count="2">Lze si zaregistrovat předměty PB095, PB125, PB162 nebo PA156.</vxml:prompt>
+            <vxml:prompt count="2">Options are PB095, PB125, PB162 or PA156.</vxml:prompt>
         </onentry>
         <datamodel>
             <data id="CourseGrammar" expr="./registration.grxml#predmet"/>
@@ -37,8 +37,8 @@
     </state>
     <state id="All">
         <onentry>
-            <vxml:prompt>Zadal jste <vxml:value expr="Course"/>, ukončený <vxml:value expr="Finishing"/>. Souhlasíte?</vxml:prompt>
-            <vxml:prompt count="2">Ano nebo ne?</vxml:prompt>
+            <vxml:prompt>Have you entered <vxml:value expr="Course"/>, terminated with <vxml:value expr="Finishing"/>. Do you agree?</vxml:prompt>
+            <vxml:prompt count="2">Yes or no?</vxml:prompt>
         </onentry>
         <datamodel>
             <data id="yesnoGrammar" expr="./registration.grxml#anone"/>

@@ -40,25 +40,19 @@
   <one-of>
     <item>PPL</item>
     <item>GLS</item>
-    <item>OSOBNĚ</item>
+    <item>PERSONALLY</item>
   </one-of>
  </rule>
  <rule id="payment">
   <one-of>
-   <item tag="hotove"><ruleref uri="hotove"/></item>
-   <item>PŘEVODEM</item>
-  </one-of>
- </rule>
- <rule id="hotove">
-  <one-of>
-   <item>HOTOVOST</item>
-   <item>HOTOVĚ</item>
+   <item>CASH</item>
+   <item>CARD</item>
   </one-of>
  </rule>
  <rule id="anone">
    <one-of>
-    <item>ano</item>
-    <item>ne</item>
+    <item>yes</item>
+    <item>no</item>
    </one-of>
  </rule>
 </grammar>

@@ -37,21 +37,20 @@
  </rule>
  <rule id="zkouska">
   <one-of>
-   <item>zkouskou</item>
-   <item>zkousku</item>
-   <item>zkouska</item>
+   <item>examination</item>
+   <item>exam</item>
+   <item>test</item>
   </one-of>
  </rule>
  <rule id="zapocet">
   <one-of>
-   <item>zapoctem</item>
-   <item>zapocet</item>
+   <item>credit</item>
   </one-of>
  </rule>
  <rule id="anone">
    <one-of>
-    <item>ano</item>
-    <item>ne</item>
+    <item>yes</item>
+    <item>no</item>
    </one-of>
  </rule>
 </grammar>
