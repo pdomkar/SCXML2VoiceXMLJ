@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <vxml version="2.0" xmlns="http://www.w3.org/2001/vxml">
+  <form id="Start">
+   <grammar src="registrace"/>
+   <initial name="Start">
+    <prompt>Vítejte v registraci předmětů</prompt>
+   </initial>
+   <field name="Credits">
+    <prompt>Zadejte za kolik kreditů si chcete předmět zapsat</prompt>
+    <nomatch></nomatch>
+    <noinput></noinput>
+   </field>
+   <field name="Course">
+    <prompt>Zadejte název nebo kód předmětu.</prompt>
+    <nomatch>Možno zapsat pb095, pb125, pb162, pa156</nomatch>
+    <noinput>Možno zapsat pb095, pb125, pb162, pa156</noinput>
+    <grammar src="registrace.grxml#predmet"/>
+   </field>
+  <field name="Finishing">   
+   </field>
+   <field name="Course-credits">    
+   </field>
+   <field name="Course-finishing">   
+   </field>
+   <field name="Finishing-credits">   
+   </field>
+   <field name="All">    
+   </field>
+   <field name="Submit">
+   </field>
+  </form>
+ </vxml>

@@ -5,18 +5,21 @@
  */
 package cz.muni.fi.pb138.scxml2voicexmlj.srgs;
 
-import org.custommonkey.xmlunit.Diff;
-import org.junit.Test;
-import org.xml.sax.SAXException;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-import static org.junit.Assert.fail;
+import org.custommonkey.xmlunit.Diff;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -27,7 +30,7 @@ public class SrgsImplTest {
     public void testGetSrgsReferencesOnRegistrationScxml() throws FileNotFoundException {
         InputStream in = new FileInputStream("src/test/resources/Registration.scxml");
         Map<String,String> correctReferences = new HashMap();
-        correctReferences.put(null, "./registrace.grxml"); // grammar from the <datamodel> of the whole file (no state)
+        correctReferences.put(null, "./registration.grxml"); // grammar from the <datamodel> of the whole file (no state) 
         correctReferences.put("Finishing", "./registration.grxml#ukonceni");
         correctReferences.put("Course", "./registration.grxml#predmet");
         correctReferences.put("All", "./registration.grxml#anone");
@@ -45,7 +48,7 @@ public class SrgsImplTest {
         Srgs srgs = new SrgsImpl();
         Map<String,String> references = srgs.getSrgsReferences(in, "src/test/resources/Registration_inlineOneRule-GENERATED_GRAMMAR_");
         
-        if (!references.get(null).equals("./registrace.grxml")) fail(); // grammar from the <datamodel> of the whole file (no state)
+        if (!references.get(null).equals("./registration.grxml")) fail(); // grammar from the <datamodel> of the whole file (no state) 
         
         if (!references.get("Finishing").equals("./registration.grxml#ukonceni")) fail();
         
@@ -83,7 +86,7 @@ public class SrgsImplTest {
         Srgs srgs = new SrgsImpl();
         Map<String,String> references = srgs.getSrgsReferences(in, "src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_");
         
-        if (!references.get(null).equals("./registrace.grxml")) fail(); // grammar from the <datamodel> of the whole file (no state)
+        if (!references.get(null).equals("./registration.grxml")) fail(); // grammar from the <datamodel> of the whole file (no state) 
         
         if (!references.get("Finishing").equals("src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_1.grxml#ukonceni")) fail();
         if (!xmlIdentical(readFile("src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_1.grxml"), 

@@ -17,7 +17,6 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.*;
-import java.nio.file.Files;
 import java.util.Map;
 
 /**
@@ -34,6 +33,8 @@ public final class MainCommandLine {
 
     private static final String APP_NAME = "scxml2voicexmlj";
     private static final String XSD_SCXML = "src/main/resources/scxml-schema/scxml.xsd";
+    private static final String XQUERY_ONLY_DATAMODEL_CHILD =
+            "for $d in /scxml/datamodel return $d";
 
     private static final String OPTION_INPUT_SHORT        = "i";
     private static final String OPTION_INPUT_LONG         = "input";
@@ -157,20 +158,11 @@ public final class MainCommandLine {
      * Calls the component for generating SRGS output and stores it into given file.
      */
     private static Map<String, String> runSRGSComponent(String inputFile, String outputFile) throws IOException {
+        //TODO the rest (not only references, but also creating file?)
         Srgs component = new SrgsImpl();
         Map<String, String> retval;
         try (InputStream is = new FileInputStream(inputFile)) {
             retval = component.getSrgsReferences(is, inputFile);
-            String outputGrammarFilePath = retval.get(null);
-            if (outputGrammarFilePath != null) { //there is whole file associated
-                Files.copy(new File(outputFile).toPath(), new File(outputGrammarFilePath).toPath());
-                retval.put(null, outputFile);
-            }
-            else {
-                File f = new File(outputFile);
-                f.getParentFile().mkdirs();
-                f.createNewFile();
-            }
         }
         return retval;
     }

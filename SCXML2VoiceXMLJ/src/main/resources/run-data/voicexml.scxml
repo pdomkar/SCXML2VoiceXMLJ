@@ -1,0 +1,20 @@
+<vxml xmlns="http://www.w3.org/2001/vxml" version="2.0">
+    <form id="main">   
+    <initial name="Start">
+            <prompt>Vítejte v registraci předmětů</prompt>
+        <filled>
+            <assign name="Start" expr="true" />
+        </filled><nomatch count="3"><exit /></nomatch><noinput count="3"><exit /></noinput></initial><field name="Finishing">
+            <prompt>Zadejte způsob ukončení.</prompt>
+            <prompt count="2">Možnosti jsou zkouška nebo zápočet.</prompt>
+        <nomatch count="3"><exit /></nomatch><noinput count="3"><exit /></noinput><grammar src="./registration.grxml#ukonceni" /></field><field name="Course">
+            <prompt>Zadejte registrovaný předmět.</prompt>
+
+            <prompt count="2">Lze si zaregistrovat předměty PB095, PB125, PB162 nebo PA156.</prompt>
+        <nomatch count="3"><exit /></nomatch><noinput count="3"><exit /></noinput><grammar src="./registration.grxml#predmet" /></field><field name="All">
+            <prompt>Zadal jste <value expr="Course" />, ukončený <value expr="Finishing" />. Souhlasíte?</prompt>
+            <prompt count="2">Ano nebo ne?</prompt>
+        <nomatch count="3"><exit /></nomatch><noinput count="3"><exit /></noinput><filled><if expr="All=='ne'"><clear namelist="Start Finishing Course All" /></if></filled><grammar src="./registration.grxml#anone" /></field><field name="Submit">
+            <submit src="uri" namelist="Course Finishing" />
+        <nomatch count="3"><exit /></nomatch><noinput count="3"><exit /></noinput></field></form>
+</vxml>

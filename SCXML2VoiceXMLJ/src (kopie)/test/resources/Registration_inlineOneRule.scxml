@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:vxml="http://www.w3.org/2001/vxml" version="1.0" initial="Start">
     <datamodel>
-          <data id="Grammar" expr="./registrace.grxml"/>
+          <data id="Grammar" expr="./registration.grxml"/>
     </datamodel>  
     <state id="Start">
           <onentry>
@@ -20,33 +20,7 @@
               <vxml:prompt count="2">Možnosti jsou zkouška nebo zápočet.</vxml:prompt>
           </onentry>
           <datamodel>
-            <data id="FinishingGrammar">
-                <grammar root="ukonceni">
-                    <rule id="ukonceni">
-                        <one-of>
-                            <item tag="zkouska">
-                                <ruleref uri="#zkouska"/>
-                            </item>
-                            <item tag="zapocet">
-                                <ruleref uri="#zapocet"/>
-                            </item>
-                        </one-of>
-                    </rule>
-                    <rule id="zkouska">
-                        <one-of>
-                            <item>zkouskou</item>
-                            <item>zkousku</item>
-                            <item>zkouska</item>
-                        </one-of>
-                    </rule>
-                    <rule id="zapocet">
-                        <one-of>
-                            <item>zapoctem</item>
-                            <item>zapocet</item>
-                        </one-of>
-                    </rule>
-                </grammar>
-            </data>
+            <data id="FinishingGrammar" expr="./registration.grxml#ukonceni"/>
           </datamodel>
           <transition event="Finishing" target="All"/>
     </state>
@@ -78,7 +52,16 @@
               <vxml:prompt count="2">Ano nebo ne?</vxml:prompt>
           </onentry>
           <datamodel>
-           <data id="yesnoGrammar" expr="./registration.grxml#anone"/>
+           <data id="yesnoGrammar">
+               <grammar root="anone">
+                <rule id="anone">
+                    <one-of>
+                        <item>ano</item>
+                        <item>ne</item>
+                    </one-of>
+                </rule>
+               </grammar>
+           </data>
           </datamodel>
           <transition event="ne" target="Start" />
           <transition event="ano" target="Submit" />
