@@ -17,6 +17,11 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 /**
@@ -166,30 +171,18 @@ public final class MainCommandLine {
 
         String outputGrammarFilePath = retval.get(null);
         if (!outputFile.equals(outputGrammarFilePath)) {
-            OutputStream os;
             if (outputFile != null) {
-                File f = new File(outputFile);
-                f.getParentFile().mkdirs();
-                f.createNewFile();
-                os = new FileOutputStream(f);
+                Files.copy(new File(outputGrammarFilePath).toPath(), new File(outputFile).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Output stored to " + outputFile);
             } else {
-                os = System.out;
-            }
-
-            if (outputGrammarFilePath != null) { //there is whole file associated
-                StringBuilder sb = new StringBuilder();
+                OutputStream os = System.out;
                 try (InputStream is = new FileInputStream(outputGrammarFilePath)) {
                     while (is.available() > 0) {
                         os.write(is.read());
                     }
                 }
-                retval.put(null, outputFile);
             }
-
-            if (!os.equals(System.out)) {
-                os.close();
-                System.out.println("Output stored to " + outputFile);
-            }
+            retval.put(null, outputFile);
         }
 
         return retval;
@@ -206,21 +199,15 @@ public final class MainCommandLine {
             vxml = component.convert(is, grammars);
         }
 
-        OutputStream os;
         if (outputFile != null) {
-            os = new FileOutputStream(outputFile);
-        }
-        else {
-            os = System.out;
-        }
-        try {
+            try (BufferedWriter out = Files.newBufferedWriter(Paths.get(new File(outputFile).toURI()), StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)){
+                out.write(vxml);
+            }
+            System.out.println("Output stored to " + outputFile);
+        } else {
+            OutputStream os = System.out;
             os.write(vxml.getBytes());
             os.flush();
-        } finally {
-            if (!os.equals(System.out)) {
-                os.close();
-                System.out.println("Output stored to " + outputFile);
-            }
         }
     }
 }
