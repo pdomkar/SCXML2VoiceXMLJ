@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.transform.Transformer;
@@ -58,7 +59,8 @@ public class SrgsImplTest {
         
         if (!references.get("Finishing").equals("<grammar src=\"./registration.grxml#ukonceni\"/>")) fail();
         
-        if (!xmlIdentical(references.get("Course"), 
+        if (!references.get("Course").equals("<grammar src=\"src/test/resources/Registration_inlineOneRule-GENERATED_GRAMMAR_1.grxml#predmet\"/>")) fail();
+        if (!xmlIdentical(readFile("src/test/resources/Registration_inlineOneRule-GENERATED_GRAMMAR_1.grxml"), 
                 "<grammar root=\"predmet\">\n" +
 "                <rule id=\"predmet\">\n" +
 "                    <one-of>\n" +
@@ -70,7 +72,8 @@ public class SrgsImplTest {
 "                </rule>\n" +
 "               </grammar>")) fail();
         
-        if (!xmlIdentical(references.get("All"), 
+        if (!references.get("All").equals("<grammar src=\"src/test/resources/Registration_inlineOneRule-GENERATED_GRAMMAR_2.grxml#anone\"/>")) fail();
+        if (!xmlIdentical(readFile("src/test/resources/Registration_inlineOneRule-GENERATED_GRAMMAR_2.grxml"), 
                 "<grammar root=\"anone\">\n" +
 "                <rule id=\"anone\">\n" +
 "                    <one-of>\n" +
@@ -90,7 +93,8 @@ public class SrgsImplTest {
         Srgs srgs = new SrgsImpl();
         Map<String,String> references = srgs.getSrgsReferences(in, "src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_");
         
-        if (!xmlIdentical(references.get("Finishing"), 
+        if (!references.get("Finishing").equals("<grammar src=\"src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_1.grxml#ukonceni\"/>")) fail();
+        if (!xmlIdentical(readFile("src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_1.grxml"), 
                 "<grammar root=\"ukonceni\">\n" +
 "                    <rule id=\"ukonceni\">\n" +
 "                        <one-of>\n" +
@@ -117,7 +121,8 @@ public class SrgsImplTest {
 "                    </rule>\n" +
 "                </grammar>")) fail();
         
-        if (!xmlIdentical(references.get("Course"), 
+        if (!references.get("Course").equals("<grammar src=\"src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_2.grxml#predmet\"/>")) fail();
+        if (!xmlIdentical(readFile("src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_2.grxml"), 
                 "<grammar root=\"predmet\">\n" +
 "                <rule id=\"predmet\">\n" +
 "                    <one-of>\n" +
@@ -146,7 +151,7 @@ public class SrgsImplTest {
     }
     
     
-    private boolean xmlIdentical(String xml1, String xml2) {
+    private static boolean xmlIdentical(String xml1, String xml2) {
         Diff diff = null;
         try {
             diff = new Diff(xml1, xml2);
@@ -157,5 +162,19 @@ public class SrgsImplTest {
         }
         boolean isIdentical = diff.identical();
         return isIdentical;
+    }
+    
+    
+    private static String readFile(String filename) {
+        Scanner scanner = null;
+        try {
+            scanner = new Scanner(new File(filename));
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SrgsImplTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        scanner.useDelimiter("\\Z");
+        String fileContent = scanner.next();
+        scanner.close();
+        return fileContent;
     }
 }

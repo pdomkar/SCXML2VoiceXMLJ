@@ -2,3 +2,5 @@
 SCXML2VoiceXMLJ/src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMARS.grxml
 SCXML2VoiceXMLJ/src/test/resources/Registration_inlineOneRule-GENERATED_GRAMMARS.grxml
 SCXML2VoiceXMLJ/app.log
+SCXML2VoiceXMLJ/src/test/resources/Registration_inlineMultipleRules-GENERATED_*
+SCXML2VoiceXMLJ/src/test/resources/Registration_inlineOneRule-GENERATED_*

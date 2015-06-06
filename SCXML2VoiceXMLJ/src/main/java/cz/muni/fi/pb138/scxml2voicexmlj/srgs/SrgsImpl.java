@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,6 +58,8 @@ public class SrgsImpl implements Srgs {
         } catch (IOException ex) {
             Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
         } 
+        
+        int inlineGrammarNum = 1;
         
         NodeList stateElems = doc.getElementsByTagName("state");
         for (int i = 0; i < stateElems.getLength(); i++) {
@@ -116,8 +119,21 @@ public class SrgsImpl implements Srgs {
                             // get the string from the string writer 
                             String grammarStr = writer.getBuffer().toString();
                             
-                            // assign the state the inline grammar code to use in vxml
-                            result.put(state.getAttribute("id"), grammarStr);
+                            // store the grammar code in a file
+                            String grxmlFileName = grxmlFileNamePrefix + inlineGrammarNum + ".grxml"; inlineGrammarNum++;
+                            
+                            PrintWriter printWriter = null;
+                            try {
+                                printWriter = new PrintWriter(new File(grxmlFileName));
+                            } catch (FileNotFoundException ex) {
+                                Logger.getLogger(SrgsImpl.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            
+                            printWriter.println(grammarStr);
+                            printWriter.close();
+                            
+                            // assign the state the code to link to its grammar in VoiceXML
+                            result.put(state.getAttribute("id"), "<grammar src=\"" + grxmlFileName + "#" + grammar.getAttribute("root") + "\"/>");
                         } else {
                             try {
                                 throw new Exception("there isn't exactly one <grammar> element in <data>");
