@@ -119,19 +119,4 @@ public class XsltStateStackConverterTest {
         assertEquals(TRANSFORM_STATE, mappedTransforms.get(normal));
     }
 
-    @Test
-    public void foo() {
-        GrammarReference gram = mock(GrammarReference.class);
-        when(gram.grammarFile()).thenReturn("file");
-        when(gram.stateHasGrammarReference(anyString())).thenReturn(true);
-        when(gram.referenceForState(anyString())).then(new Answer<String>() {
-
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                return invocation.getArguments()[0].toString();
-            }
-        });
-        System.out.println(conv.convert(getClass().getResourceAsStream("/Registration.scxml"), gram));
-    }
-
 }
