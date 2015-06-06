@@ -1,0 +1,47 @@
+Vstupni scxml
+<scxml>
+	<datamodel>
+		<data id="grammar" expr="grammar.grxml"/>
+	</datamodel>
+	<initial>
+		<datamodel>
+			<data id="grammar.grxml#initial"/>
+		</datamodel>
+	</initial>
+	<state id="someState">
+		<datamodel>
+			<data id="someStateGrammar">
+			    <one-of>
+				    <item>jedi</item>
+				    <item>sith</item>
+				</one-of>
+			</data>
+		</datamodel>
+	</state>
+</scxml>
+
+Vstupni grxml
+<grammar root="initial" xml:lang="en-US">
+	<rule id="initial">
+		<one-of>
+			<item>force</item>
+			<item>guns</item>
+		</one-of>
+ 	</rule>
+</grammar>
+
+Vystupni grxml
+<grammar root="initial" xml:lang="en-US">
+	<rule id="initial">
+		<one-of>
+			<item>force</item>
+			<item>guns</item>
+		</one-of>
+ 	</rule>
+ 	<rule id="someStateGrammar">
+ 		<one-of>
+		    <item>jedi</item>
+		    <item>sith</item>
+		</one-of>
+	</rule>
+</grammar>
