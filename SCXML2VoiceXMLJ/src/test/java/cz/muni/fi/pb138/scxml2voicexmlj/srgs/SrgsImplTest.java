@@ -30,7 +30,7 @@ public class SrgsImplTest {
     public void testGetSrgsReferencesOnRegistrationScxml() throws FileNotFoundException {
         InputStream in = new FileInputStream("src/test/resources/Registration.scxml");
         Map<String,String> correctReferences = new HashMap();
-        //correctReferences.put("Grammar", "<grammar src=\"registrace.grxml\"/>"); // grammar from the <datamodel> of the whole file (no state) 
+        correctReferences.put(null, "./registration.grxml"); // grammar from the <datamodel> of the whole file (no state) 
         correctReferences.put("Finishing", "./registration.grxml#ukonceni");
         correctReferences.put("Course", "./registration.grxml#predmet");
         correctReferences.put("All", "./registration.grxml#anone");
@@ -47,6 +47,8 @@ public class SrgsImplTest {
         
         Srgs srgs = new SrgsImpl();
         Map<String,String> references = srgs.getSrgsReferences(in, "src/test/resources/Registration_inlineOneRule-GENERATED_GRAMMAR_");
+        
+        if (!references.get(null).equals("./registration.grxml")) fail(); // grammar from the <datamodel> of the whole file (no state) 
         
         if (!references.get("Finishing").equals("./registration.grxml#ukonceni")) fail();
         
@@ -83,6 +85,8 @@ public class SrgsImplTest {
         
         Srgs srgs = new SrgsImpl();
         Map<String,String> references = srgs.getSrgsReferences(in, "src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_");
+        
+        if (!references.get(null).equals("./registration.grxml")) fail(); // grammar from the <datamodel> of the whole file (no state) 
         
         if (!references.get("Finishing").equals("src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_1.grxml#ukonceni")) fail();
         if (!xmlIdentical(readFile("src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_1.grxml"), 
@@ -134,6 +138,7 @@ public class SrgsImplTest {
     public void testGetSrgsReferencesOnRegistration_singleStateScxml() throws FileNotFoundException {
         InputStream in = new FileInputStream("src/test/resources/Registration_singleState.scxml");
         Map<String,String> correctReferences = new HashMap();
+        correctReferences.put(null, null); // grammar from the <datamodel> of the whole file (no state) - in this scxml file there is none
         correctReferences.put("Course", "./registration.grxml#predmet");
         
         Srgs srgs = new SrgsImpl();

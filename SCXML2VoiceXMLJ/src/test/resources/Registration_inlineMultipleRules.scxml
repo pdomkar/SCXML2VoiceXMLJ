@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:vxml="http://www.w3.org/2001/vxml" version="1.0" initial="Start">
     <datamodel>
-          <data id="Grammar" expr="./registrace.grxml"/>
+          <data id="Grammar" expr="./registration.grxml"/>
     </datamodel>  
     <state id="Start">
           <onentry>
