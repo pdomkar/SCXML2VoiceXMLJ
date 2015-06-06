@@ -51,7 +51,7 @@ public class SrgsImplTest {
         
         if (!references.get("Course").equals("src/test/resources/Registration_inlineOneRule-GENERATED_GRAMMAR_1.grxml#predmet")) fail();
         if (!xmlIdentical(readFile("src/test/resources/Registration_inlineOneRule-GENERATED_GRAMMAR_1.grxml"), 
-                "<grammar root=\"predmet\">\n" +
+                "<grammar mode=\"voice\" root=\"predmet\" version=\"1.0\">\n" +
 "                <rule id=\"predmet\">\n" +
 "                    <one-of>\n" +
 "                        <item>pb095<tag>{$.predmet = 'pb095';}</tag></item>\n" +
@@ -64,7 +64,7 @@ public class SrgsImplTest {
         
         if (!references.get("All").equals("src/test/resources/Registration_inlineOneRule-GENERATED_GRAMMAR_2.grxml#anone")) fail();
         if (!xmlIdentical(readFile("src/test/resources/Registration_inlineOneRule-GENERATED_GRAMMAR_2.grxml"), 
-                "<grammar root=\"anone\">\n" +
+                "<grammar mode=\"voice\" root=\"anone\" version=\"1.0\">\n" +
 "                <rule id=\"anone\">\n" +
 "                    <one-of>\n" +
 "                        <item>ano</item>\n" +
@@ -87,7 +87,7 @@ public class SrgsImplTest {
         
         if (!references.get("Finishing").equals("src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_1.grxml#ukonceni")) fail();
         if (!xmlIdentical(readFile("src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_1.grxml"), 
-                "<grammar root=\"ukonceni\">\n" +
+                "<grammar mode=\"voice\" root=\"ukonceni\" version=\"1.0\">\n" +
 "                    <rule id=\"ukonceni\">\n" +
 "                        <one-of>\n" +
 "                            <item tag=\"zkouska\">\n" +
@@ -115,7 +115,7 @@ public class SrgsImplTest {
         
         if (!references.get("Course").equals("src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_2.grxml#predmet")) fail();
         if (!xmlIdentical(readFile("src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_2.grxml"), 
-                "<grammar root=\"predmet\">\n" +
+                "<grammar mode=\"voice\" root=\"predmet\" version=\"1.0\">\n" +
 "                <rule id=\"predmet\">\n" +
 "                    <one-of>\n" +
 "                        <item>pb095<tag>{$.predmet = 'pb095';}</tag></item>\n" +
