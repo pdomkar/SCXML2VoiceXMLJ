@@ -7,11 +7,8 @@ package cz.muni.fi.pb138.scxml2voicexmlj.srgs;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -37,7 +34,7 @@ import org.xml.sax.SAXException;
 
 /**
  *
- * @author petr
+ * @author Petr Mejzlik
  */
 public class SrgsImpl implements Srgs {
     public Map<String,String> getSrgsReferences(InputStream scxmlContent, String grxmlFileNamePrefix) {
