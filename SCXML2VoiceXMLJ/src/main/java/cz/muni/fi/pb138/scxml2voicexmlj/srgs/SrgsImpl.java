@@ -69,7 +69,7 @@ public class SrgsImpl implements Srgs {
                     Node dataNode = dataElems.item(0);
                     Element data = (Element) dataNode;
                     if (data.hasAttribute("expr")) {
-                        result.put(state.getAttribute("id"), "<grammar src=\"" + data.getAttribute("expr") + "\"/>");
+                        result.put(state.getAttribute("id"), data.getAttribute("expr"));
                     } else {
                         // an inline grammar inside of the <data> element
                         NodeList grammarElems = data.getElementsByTagName("grammar");
@@ -130,7 +130,7 @@ public class SrgsImpl implements Srgs {
                             printWriter.close();
                             
                             // assign the state the code to link to its grammar in VoiceXML
-                            result.put(state.getAttribute("id"), "<grammar src=\"" + grxmlFileName + "#" + grammar.getAttribute("root") + "\"/>");
+                            result.put(state.getAttribute("id"), grxmlFileName + "#" + grammar.getAttribute("root"));
                         } else {
                             try {
                                 throw new Exception("there isn't exactly one <grammar> element in <data>");
