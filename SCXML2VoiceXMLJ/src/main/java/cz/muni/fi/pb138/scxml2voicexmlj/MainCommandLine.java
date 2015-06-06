@@ -17,7 +17,6 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.*;
-import java.nio.file.Files;
 import java.util.Map;
 
 /**
@@ -85,13 +84,13 @@ public final class MainCommandLine {
             return;
         }
 
+        System.out.println("\n---------- Opening and validating input file ----------");
         String inputFile;
         if (cmd.hasOption(OPTION_INPUT_SHORT)) {
             log.info("Evaluating option " + OPTION_INPUT_SHORT);
-            System.out.println("Opening and validating input file");
             inputFile = cmd.getOptionValue(OPTION_INPUT_SHORT);
             validateInputFile(inputFile);
-            System.out.println("Input file is valid SCXML file.");
+            System.out.println("Input file " + inputFile + " is valid SCXML file.");
         }
         else {
             log.error("Missing option '" + OPTION_INPUT_LONG + "'");
@@ -101,6 +100,7 @@ public final class MainCommandLine {
         }
 
         Map<String, String> grammars;
+        System.out.println("\n--------------- Generating SRGS grammars --------------");
         if (cmd.hasOption(OPTION_OUTPUT_SRGS_SHORT)) {
             log.info("Evaluating option " + OPTION_OUTPUT_SRGS_SHORT);
             String outputFile = cmd.getOptionValue(OPTION_OUTPUT_SRGS_SHORT);
@@ -119,6 +119,7 @@ public final class MainCommandLine {
             }
         }
 
+        System.out.println("\n----------------- Generating VoiceXML -----------------");
         if (cmd.hasOption(OPTION_OUTPUT_VOICEXML_SHORT)) {
             log.info("Evaluating option " + OPTION_OUTPUT_VOICEXML_SHORT);
             String outputFile = cmd.getOptionValue(OPTION_OUTPUT_VOICEXML_SHORT);
@@ -161,17 +162,35 @@ public final class MainCommandLine {
         Map<String, String> retval;
         try (InputStream is = new FileInputStream(inputFile)) {
             retval = component.getSrgsReferences(is, inputFile);
-            String outputGrammarFilePath = retval.get(null);
-            if (outputGrammarFilePath != null) { //there is whole file associated
-                Files.copy(new File(outputFile).toPath(), new File(outputGrammarFilePath).toPath());
-                retval.put(null, outputFile);
-            }
-            else {
-                File f = new File(outputFile);
-                f.getParentFile().mkdirs();
-                f.createNewFile();
-            }
         }
+
+        String outputGrammarFilePath = retval.get(null);
+        OutputStream os;
+        if (outputFile != null) {
+            File f = new File(outputFile);
+            f.getParentFile().mkdirs();
+            f.createNewFile();
+            os = new FileOutputStream(f);
+        }
+        else {
+            os = System.out;
+        }
+
+        if (outputGrammarFilePath != null) { //there is whole file associated
+            StringBuilder sb = new StringBuilder();
+            try (InputStream is = new FileInputStream(outputGrammarFilePath)) {
+                while (is.available() > 0) {
+                    os.write(is.read());
+                }
+            }
+            retval.put(null, outputFile);
+        }
+
+        if (!os.equals(System.out)) {
+            os.close();
+            System.out.println("Output stored to " + outputFile);
+        }
+
         return retval;
     }
 
@@ -197,7 +216,10 @@ public final class MainCommandLine {
             os.write(vxml.getBytes());
             os.flush();
         } finally {
-            os.close();
+            if (!os.equals(System.out)) {
+                os.close();
+                System.out.println("Output stored to " + outputFile);
+            }
         }
     }
 }

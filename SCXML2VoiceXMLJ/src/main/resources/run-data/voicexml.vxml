@@ -1,0 +1,20 @@
+<vxml xmlns="http://www.w3.org/2001/vxml" version="2.0">
+    <form id="main">   
+    <grammar src="src/main/resources/run-data/registration.grxml" /><initial name="Start">
+            <ns0:prompt xmlns:ns0="http://www.w3.org/2001/vxml">Vítejte v registraci předmětů</ns0:prompt>
+        <filled>
+            <ns1:assign xmlns:ns1="http://www.w3.org/2001/vxml" name="Start" expr="true" />
+        </filled><nomatch count="3"><exit /></nomatch><noinput count="3"><exit /></noinput></initial><field name="Finishing">
+            <ns2:prompt xmlns:ns2="http://www.w3.org/2001/vxml">Zadejte způsob ukončení.</ns2:prompt>
+            <ns3:prompt xmlns:ns3="http://www.w3.org/2001/vxml" count="2">Možnosti jsou zkouška nebo zápočet.</ns3:prompt>
+        <nomatch count="3"><exit /></nomatch><noinput count="3"><exit /></noinput><grammar src="./registration.grxml#ukonceni" /></field><field name="Course">
+            <ns4:prompt xmlns:ns4="http://www.w3.org/2001/vxml">Zadejte registrovaný předmět.</ns4:prompt>
+
+            <ns5:prompt xmlns:ns5="http://www.w3.org/2001/vxml" count="2">Lze si zaregistrovat předměty PB095, PB125, PB162 nebo PA156.</ns5:prompt>
+        <nomatch count="3"><exit /></nomatch><noinput count="3"><exit /></noinput><grammar src="./registration.grxml#predmet" /></field><field name="All">
+            <ns6:prompt xmlns:ns6="http://www.w3.org/2001/vxml">Zadal jste <ns7:value xmlns:ns7="http://www.w3.org/2001/vxml" expr="Course" />, ukončený <ns8:value xmlns:ns8="http://www.w3.org/2001/vxml" expr="Finishing" />. Souhlasíte?</ns6:prompt>
+            <ns9:prompt xmlns:ns9="http://www.w3.org/2001/vxml" count="2">Ano nebo ne?</ns9:prompt>
+        <nomatch count="3"><exit /></nomatch><noinput count="3"><exit /></noinput><filled><if expr="All=='ne'"><clear namelist="Start Finishing Course All" /></if></filled><grammar src="./registration.grxml#anone" /></field><field name="Submit">
+            <ns10:submit xmlns:ns10="http://www.w3.org/2001/vxml" src="uri" namelist="Course Finishing" />
+        <nomatch count="3"><exit /></nomatch><noinput count="3"><exit /></noinput></field></form>
+</vxml>

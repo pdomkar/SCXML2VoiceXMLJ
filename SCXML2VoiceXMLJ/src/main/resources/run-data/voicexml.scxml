@@ -1,6 +1,6 @@
 <vxml xmlns="http://www.w3.org/2001/vxml" version="2.0">
     <form id="main">   
-    <initial name="Start">
+    <grammar src="src/main/resources/run-data/grammar.scxml" /><initial name="Start">
             <prompt>Vítejte v registraci předmětů</prompt>
         <filled>
             <assign name="Start" expr="true" />
