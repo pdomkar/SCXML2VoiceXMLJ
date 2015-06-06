@@ -39,7 +39,7 @@ import org.xml.sax.SAXException;
  * @author petr
  */
 public class SrgsImpl implements Srgs {
-    public Map<String,String> getSrgsReferences(InputStream scxmlContent) {
+    public Map<String,String> getSrgsReferences(InputStream scxmlContent, String grxmlFileNamePrefix) {
         Map<String,String> result = new HashMap<String,String>();
         
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

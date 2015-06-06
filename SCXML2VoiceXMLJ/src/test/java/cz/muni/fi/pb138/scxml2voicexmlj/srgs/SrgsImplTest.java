@@ -44,7 +44,7 @@ public class SrgsImplTest {
         correctReferences.put("All", "<grammar src=\"./registration.grxml#anone\"/>");
         
         Srgs srgs = new SrgsImpl();
-        Map<String,String> references = srgs.getSrgsReferences(in);
+        Map<String,String> references = srgs.getSrgsReferences(in, "src/test/resources/Registration-GENERATED_GRAMMAR_");
         if (!references.equals(correctReferences)) fail();
     }
     
@@ -54,7 +54,7 @@ public class SrgsImplTest {
         InputStream in = new FileInputStream("src/test/resources/Registration_inlineOneRule.scxml");
         
         Srgs srgs = new SrgsImpl();
-        Map<String,String> references = srgs.getSrgsReferences(in);
+        Map<String,String> references = srgs.getSrgsReferences(in, "src/test/resources/Registration_inlineOneRule-GENERATED_GRAMMAR_");
         
         if (!references.get("Finishing").equals("<grammar src=\"./registration.grxml#ukonceni\"/>")) fail();
         
@@ -88,7 +88,7 @@ public class SrgsImplTest {
         InputStream in = new FileInputStream("src/test/resources/Registration_inlineMultipleRules.scxml");
         
         Srgs srgs = new SrgsImpl();
-        Map<String,String> references = srgs.getSrgsReferences(in);
+        Map<String,String> references = srgs.getSrgsReferences(in, "src/test/resources/Registration_inlineMultipleRules-GENERATED_GRAMMAR_");
         
         if (!xmlIdentical(references.get("Finishing"), 
                 "<grammar root=\"ukonceni\">\n" +
@@ -141,7 +141,7 @@ public class SrgsImplTest {
         correctReferences.put("Course", "<grammar src=\"./registration.grxml#predmet\"/>");
         
         Srgs srgs = new SrgsImpl();
-        Map<String,String> references = srgs.getSrgsReferences(in);
+        Map<String,String> references = srgs.getSrgsReferences(in, "src/test/resources/Registration_singleState-GENERATED_GRAMMAR_");
         if (!references.equals(correctReferences)) fail();
     }
     

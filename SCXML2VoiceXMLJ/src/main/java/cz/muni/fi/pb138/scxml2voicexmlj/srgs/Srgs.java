@@ -14,10 +14,17 @@ import java.util.Map;
  */
 public interface Srgs {
     /**
-     * @param scxmlContent      xml containing the dialog in the scxml format
+     * @param scxmlContent           XML containing the dialog in the SCXML format.
      * 
-     * @return                  for each state id, the XML element code 
-     *                          to reference the SRGS grammar of that state
+     * @param grxmlFileNamePrefix    The common prefix of the names of the files 
+     *                               where inline grammars from the SCXML file will 
+     *                               be stored. Each grammar is stored in its own file. 
+     *                               NOTE: The .grxml extension will be appended automatically, 
+     *                                     don't use it in the prefix.
+     * 
+     * @return                       For each state id, the XML code 
+     *                               to reference the SRGS grammar of that state
+     *                               in VoiceXML.
      */
-    Map<String,String> getSrgsReferences(InputStream scxmlContent);
+    Map<String,String> getSrgsReferences(InputStream scxmlContent, String grxmlFileNamePrefix);
 }
