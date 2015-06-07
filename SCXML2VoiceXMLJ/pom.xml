@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mycompany</groupId>
     <artifactId>SCXML2VoiceXMLJ</artifactId>
@@ -12,14 +14,13 @@
                 <groupId>com.agilejava.docbkx</groupId>
                 <artifactId>docbkx-maven-plugin</artifactId>
                 <version>2.0.10</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.docbook</groupId>
-                        <artifactId>docbook-xml</artifactId>
-                        <version>4.4</version>
-                        <scope>runtime</scope>
-                    </dependency>
-                </dependencies>
+                <configuration>
+                    <htmlStylesheet>docbook.xml.css</htmlStylesheet>
+                    <preProcess>
+                        <copy todir="${project.build.directory}/docbkx/html"
+                              file="src/docbkx/docbook.xml.css"/>
+                    </preProcess>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -37,8 +38,10 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <id>make-assembly</id>
+                        <!-- this is used for inheritance merges -->
+                        <phase>package</phase>
+                        <!-- bind to the packaging phase -->
                         <goals>
                             <goal>single</goal>
                         </goals>
@@ -60,7 +63,7 @@
             </snapshots>
         </repository>
     </repositories>
-    
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -81,7 +84,7 @@
             <version>2.0.2</version>
         </dependency>
 
-        
+
         <!--  <dependency>
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-core</artifactId>
@@ -93,8 +96,8 @@
             <artifactId>xml-matchers</artifactId>
             <version>1.0-RC1</version>
             <scope>test</scope>
-        </dependency>        
-        
+        </dependency>
+
         <dependency>
             <groupId>org.easytesting</groupId>
             <artifactId>fest-assert</artifactId>
@@ -132,7 +135,7 @@
             <artifactId>xmlunit</artifactId>
             <version>1.6</version>
         </dependency>
-    </dependencies>       
+    </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <article>
-    <title>FI  PB138  SCXML2VoiceXMLJ</title>
+    <title>FI PB138 SCXML2VoiceXMLJ</title>
     <subtitle>Závěrečná zpráva</subtitle>
     <articleinfo>
         <author>
@@ -33,10 +33,10 @@
             <title>Formáty vstupu a sémantika dat</title>
             <para>
                 Značkování SCXML je navrženo pro reprezentaci konečných automatů. Může v sobě nést
-                spoustu dodatečných informací, především díky tagu <code>&lt;datamodel&gt;</code>,
-                který může obsahovat libovolné xml data. Bylo třeba zjistit potřebné odpovídající
-                sekce v obou formátech a případně nadefinovat jakým způsobem se budou data předávat
-                v datamodelu.
+                spoustu dodatečných informací, především díky elementu <code>&lt;datamodel&gt;
+                </code>, který může obsahovat libovolné xml data. Bylo třeba zjistit potřebné
+                odpovídající sekce v obou formátech a případně nadefinovat jakým způsobem se budou
+                data předávat v datamodelu.
             </para>
         </section>
     </section>
@@ -70,12 +70,15 @@
             </para>
             <para>
                 Gramatiky, které jsou z VoiceXML odkazované nelze nijak nativně v SCXML popsat.
-                Proto bylo domluveno že gramatiky je možné vždy nalézt pouze v datamodelu.
+                Proto bylo domluveno že gramatiky je možné vždy nalézt pouze v datamodelu ve dvou
+                možnostech. Buď bude gramatika přítomna jako odkaz do existujícího souboru, nebo
+                bude gramatika vepsána jako dceřinné elementy přímo v elementu <code>&lt;data&gt;
+                </code>
             </para>
             <para>
                 VoiceXML obsahuje <code>&lt;prompt&gt;</code>, který se spouští při vstupu do pole
                 a <code>&lt;filled&gt;</code>, který říká, co se má stát při vyplnění políčka. Tomu
-                odpovídají tagy <code>&lt;onentry&gt;</code> a <code>&lt;onexit&gt;</code>. Tato
+                odpovídají elementy <code>&lt;onentry&gt;</code> a <code>&lt;onexit&gt;</code>. Tato
                 funkcionalita je shrnuta v komponentě vytvářející soubor s VoiceXML.
             </para>
         </section>
