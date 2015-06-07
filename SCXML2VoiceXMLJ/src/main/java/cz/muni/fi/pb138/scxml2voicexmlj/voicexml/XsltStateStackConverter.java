@@ -7,16 +7,15 @@ package cz.muni.fi.pb138.scxml2voicexmlj.voicexml;
 
 import cz.muni.fi.pb138.scxml2voicexmlj.GrammarReference;
 import cz.muni.fi.pb138.scxml2voicexmlj.XmlHelper;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.Namespace;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Stack;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
 
@@ -64,6 +63,7 @@ class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
     public void appendGrammarFile(Element form, GrammarReference srgsReferences) {
         if (srgsReferences.grammarFile() != null) {
             Element grammar = new Element("grammar", NS_VXML);
+            grammar.setAttribute("type", "application/srgs+xml");
             grammar.setAttribute("src", srgsReferences.grammarFile());
             form.addContent(grammar);
         }
@@ -80,6 +80,7 @@ class XsltStateStackConverter implements ScxmlToVoicexmlConverter {
         String reference = srgsReferences.referenceForState(name);
         Element grammar = new Element("grammar", NS_VXML);
         grammar.setAttribute("src", reference);
+        grammar.setAttribute("type", "application/srgs+xml");
         field.addContent(grammar);
     }
 
