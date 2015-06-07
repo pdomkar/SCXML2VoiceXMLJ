@@ -37,7 +37,7 @@ public final class MainCommandLine {
     private static final Logger log = LoggerFactory.getLogger(MainCommandLine.class);
 
     private static final String APP_NAME = "scxml2voicexmlj";
-    private static final String XSD_SCXML = "src/main/resources/scxml-schema/scxml.xsd";
+    private static final String XSD_SCXML = "/scxml-schema/scxml.xsd";
 
     private static final String OPTION_INPUT_SHORT        = "i";
     private static final String OPTION_INPUT_LONG         = "input";
@@ -140,15 +140,13 @@ public final class MainCommandLine {
      */
     private static void validateInputFile(String inputFile) throws IOException, SAXException, InvalidScxmlException {
         File xmlInputFile = new File(inputFile);
-        File schemaFile = new File(XSD_SCXML);
-        String output;
 
         //validation part
         log.debug("opening file '" + xmlInputFile + "'");
         try (InputStream inputStream = new FileInputStream(xmlInputFile)) {
             Source source = new SAXSource(new InputSource(inputStream));
             log.debug("Creating validator");
-            Schema schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(schemaFile);
+            Schema schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(MainCommandLine.class.getResource(XSD_SCXML));
             Validator validator = schema.newValidator();
             try {
                 log.info("validating input file '" + xmlInputFile + "'");
@@ -170,19 +168,20 @@ public final class MainCommandLine {
         }
 
         String outputGrammarFilePath = retval.get(null);
-        if (!outputFile.equals(outputGrammarFilePath)) {
-            if (outputFile != null) {
+        if (outputFile != null) {
+            if (!outputFile.equals(outputGrammarFilePath)) {
                 Files.copy(new File(outputGrammarFilePath).toPath(), new File(outputFile).toPath(), StandardCopyOption.REPLACE_EXISTING);
                 System.out.println("Output stored to " + outputFile);
-            } else {
-                OutputStream os = System.out;
-                try (InputStream is = new FileInputStream(outputGrammarFilePath)) {
-                    while (is.available() > 0) {
-                        os.write(is.read());
-                    }
-                }
             }
             retval.put(null, outputFile);
+        }
+        else {
+            OutputStream os = System.out;
+            try (InputStream is = new FileInputStream(outputGrammarFilePath)) {
+                while (is.available() > 0) {
+                    os.write(is.read());
+                }
+            }
         }
 
         return retval;
