@@ -55,7 +55,6 @@ public class SCXML2VoiceXMLJ {
             log.error("some error occurred", e);
             System.err.println("Error: " + e.getLocalizedMessage());
         }
-        System.out.println("Exiting...");
         log.debug("Application ends");
     }
 
