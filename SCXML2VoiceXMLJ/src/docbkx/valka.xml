@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<article>
+    <title>FI  PB138  SCXML2VoiceXMLJ</title>
+    <subtitle>Závěrečná zpráva</subtitle>
+    <articleinfo>
+        <author>
+            <firstname>Tomáš</firstname>
+            <surname>Válka</surname>
+        </author>
+    </articleinfo>
+    <para>
+        Mým úkolem v projektu bylo navrhnout a implementovat uživatelské rozhraní, propojit
+        jednotlivé komponenty a pomoc při organizaci. Také jsem se věnoval konzultaci způsobu
+        převodu mezi formáty vstupních a výstupních souborů, způsobu reprezentace dialogové
+        strategie popsané ve značkování State Chart XML a její převod do formátu Voice XML.
+    </para>
+    <section>
+        <title>Problém</title>
+        <section>
+            <title>Uživatelské rohraní</title>
+            <para>
+                Bylo třeba navrhnout způsob jakým může uživatel komunikovat s tímto programem. Cílem
+                projektu byla pouze koverze z formátu SCXML do VoiceXML bez jejich editace.
+                Předpoklad byl takový, že uživatelé pracující s těmito značkováními používají buď
+                komplexní vizualizační programy pro jejich správu a interpretaci nebo spravují
+                soubory ručně. V prvním případě naše utilita nemá smysl, v tom druhém uživatel
+                pracuje na nižší úrovni se surovým souborem, musí rozumět značkování XML obecně a
+                pravděpodobně má zkušenosti s příkazovým řádkem. Proto není třeba vytvářet grafické
+                rozhraní, ale rozhodl jsem se pro utilitu na příkazovém řádku.
+            </para>
+        </section>
+        <section>
+            <title>Formáty vstupu a sémantika dat</title>
+            <para>
+                Značkování SCXML je navrženo pro reprezentaci konečných automatů. Může v sobě nést
+                spoustu dodatečných informací, především díky tagu <code>&lt;datamodel&gt;</code>,
+                který může obsahovat libovolné xml data. Bylo třeba zjistit potřebné odpovídající
+                sekce v obou formátech a případně nadefinovat jakým způsobem se budou data předávat
+                v datamodelu.
+            </para>
+        </section>
+    </section>
+    <section>
+        <title>Postup řešení</title>
+        <section>
+            <title>Uživatelské rozhraní - řádkový klient</title>
+            <para>
+                Pro implementaci jsem zvolil techonologii Apache Command Line Interface. Důvodem
+                byla jednoduchost použití a jednoduchost implementace tak, aby se co nejvíce blížila
+                způsobu, jakým fungují UNIXové utility a programy. Na takový způsob jsou uživatelé
+                zvyklí a je příjemnější. Aplikace má jen čtyři možnosti (přepínače) - vstupní
+                soubor, dva výstupní a help. Samotná aplikace také vyžaduje pouze jeden vstupní
+                soubor, který je pak výstupem ve dvou souborech, takže toto množství stačí. Do
+                budoucna je aplikace díky použité technologii lehce rozšiřitelná o případné další
+                přepínače.
+            </para>
+            <para>
+                Jediný povinný vstupní parametr je vstupní soubor (parametr <code>-i</code> nebo
+                <code>--input</code>).
+            </para>
+        </section>
+        <section>
+            <title>Formáty vstupu a sémantika dat</title>
+            <para>
+                SCXML reprezentuje konečný automat. VoiceXML spíše reprezentuje vyplňovaný formulář.
+                Oba dva formáty lze zapsat jako konečný automat. Navíc VoiceXML má více zřetelné
+                (téměř) topologické uspořádání, kde jediné zpětné hrany vedou ze stavů odkud je
+                možné se ve vyplňování formuláře vrátit a vyplňovat znovu. Takové uspořádání lze
+                nalézt i u SCXML.
+            </para>
+            <para>
+                Gramatiky, které jsou z VoiceXML odkazované nelze nijak nativně v SCXML popsat.
+                Proto bylo domluveno že gramatiky je možné vždy nalézt pouze v datamodelu.
+            </para>
+            <para>
+                VoiceXML obsahuje <code>&lt;prompt&gt;</code>, který se spouští při vstupu do pole
+                a <code>&lt;filled&gt;</code>, který říká, co se má stát při vyplnění políčka. Tomu
+                odpovídají tagy <code>&lt;onentry&gt;</code> a <code>&lt;onexit&gt;</code>. Tato
+                funkcionalita je shrnuta v komponentě vytvářející soubor s VoiceXML.
+            </para>
+        </section>
+        <section>
+            <title>Návrh architektury a propojení komponent</title>
+            <para>
+            </para>
+        </section>
+    </section>
+    <section>
+        <title>Zhodnocení</title>
+    </section>
+        <!--
+        <section>
+            <title>First section in the section</title>
+            <para>Test</para>
+            <section>
+                <title>First sub section</title>
+                <para>Subsection1</para>
+            </section>
+            <section>
+                <title>second sub section</title>
+                <para> Subsection2</para>
+            </section>
+        </section>
+        <section>
+            <title>Second section in the section</title>
+            <para>Other random text</para>
+            <para>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="images/title.png"/>
+                    </imageobject>
+                    <textobject>
+                        <phrase>Image description</phrase>
+                    </textobject>
+                </mediaobject>
+            </para>
+        </section>
+        -->
+</article>
