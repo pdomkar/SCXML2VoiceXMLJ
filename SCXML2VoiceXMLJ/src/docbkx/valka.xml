@@ -55,12 +55,18 @@
                 přepínače.
             </para>
             <para>
+                Tato komponenta zparsuje vstupní parametry, zvaliduje vstupní soubor, jestli se
+                jedná o validní SCXML a předá jej komponentám pro SRGS gramatiku a VoiceXML.
+                V případě SRGS komponenty opravuje drobné odchylky od zadaní. Při chybějících
+                parametrech výstupních souborů vypíše obsah na konzoli.
+            </para>
+            <para>
                 Jediný povinný vstupní parametr je vstupní soubor (parametr <code>-i</code> nebo
                 <code>--input</code>).
             </para>
         </section>
         <section>
-            <title>Formáty vstupu a sémantika dat</title>
+            <title>Analýza zadání a sémantika dat</title>
             <para>
                 SCXML reprezentuje konečný automat. VoiceXML spíše reprezentuje vyplňovaný formulář.
                 Oba dva formáty lze zapsat jako konečný automat. Navíc VoiceXML má více zřetelné
@@ -85,38 +91,22 @@
         <section>
             <title>Návrh architektury a propojení komponent</title>
             <para>
+                Po analýze zbylo navrhnout architekturu aplikace. Funčnost je rozdělena do tří
+                modulů.
             </para>
-        </section>
-    </section>
-    <section>
-        <title>Zhodnocení</title>
-    </section>
-        <!--
-        <section>
-            <title>First section in the section</title>
-            <para>Test</para>
-            <section>
-                <title>First sub section</title>
-                <para>Subsection1</para>
-            </section>
-            <section>
-                <title>second sub section</title>
-                <para> Subsection2</para>
-            </section>
-        </section>
-        <section>
-            <title>Second section in the section</title>
-            <para>Other random text</para>
             <para>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="images/title.png"/>
-                    </imageobject>
-                    <textobject>
-                        <phrase>Image description</phrase>
-                    </textobject>
-                </mediaobject>
+                První modul je pro vytváření souboru s VoiceXML. Je závislý na souboru s gramatikou
+                nebo spíše odkazech na pravidla. Mapování pravidel gramatiky na stavy automatu je
+                1:1, proto byla použita klasická mapa, kterou vytváří komponenta pro gramatiky.
+            </para>
+            <para>
+                Druhý modul je pro gramatiky odkazované ve vstupním souboru s SCXML. Jeho úkolem je
+                nalézt gramatiky, shrnout je v jednom souboru a dát k dispozici mapu s odkazy na
+                pravidla.
+            </para>
+            <para>
+                Třetí modul je příkazový řádek.
             </para>
         </section>
-        -->
+    </section>
 </article>
