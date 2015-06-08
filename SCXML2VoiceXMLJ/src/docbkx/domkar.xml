@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<article xmlns="http://docbook.org/ns/docbook" version="5.0" xml:lang="cs">
+    <title>FI PB138 SCXML2VoiceXMLJ</title>
+    <subtitle>Závěrečná zpráva</subtitle>
+    <articleinfo>
+        <author>
+            <firstname>Petr</firstname>
+            <surname>Domkař</surname>
+        </author>
+    </articleinfo>
+    <para>
+        Na projektu jsem se především podílel na zajištění organizace vývoje aplikace pro převod konečného automatu popsaného pomoci SCXML na dialogovou strategii popsanou pomoci VoiceXML.
+        To zahrnovalo nastudování problému zadání, navrhnutí možného provedení a rozdělení aplikace na dílčí komponenty, které se dali vypracovat zvlášť a následná komunikace ohledně aplikace. Dále jsem se věnoval vytvoření testovacích dat, testů, wiki stránek a hledání interpreta pro VoiceXML.
+    </para>
+    <section>
+        <title>Organizace</title>
+        <para>V rámci projektu jsem se v první řadě staral o jeho organizaci. To zahrnovalo komunikaci ohledně upřesnění zadání a hlídání kontrolních bodů. Dále jsem v rámci organizace promyslel, jak by se aplikace dala rozdělit na několik komponent, na kterých by mohli jednotlivě pracovat spolužáci. První komponenta se postará o komunikaci s uživatelem, kontrolu vstupů a následně zajistí komunikaci mezi dalšími dvěmi komponentami. Vzhledem k tomu že vstupní soubor SCXML, který reprezntuje mealyho automat, může obsahovat nějakou gramatiku, bylo potřeba jednotlivé gramatiky vyseparatovat a říct ke kterým stavům patří. Toto řešila druhá komponenta, která získané data předala pomocí mapy Map&lt;stav, gramatika&gt; další komponentě. Třetí komponenta převede vstup (Mealeyho automatu ve formátu SCXML) do výstupu v podobě dialogové strategie zapsané pomocí VoiceXML. Potřebnou gramatiku ve formě SRGS zajistí již druhá komponenta.</para>
+    </section>
+    <section>
+        <title>Testovací data, testy</title>
+        <para>Pro vývoj aplikace jsme potřebovali testovací data pro představu, jak data mohou vypadat a pro testování aplikace. Pro toto jsem musel nastudovat specifikaci pro SCXML, SRGS a VoiceXML soubory a zjistit z jakých elementů se skládají, kde budou předávána data a určit rozmezí naší aplikace, co bude umět. Dále jsem vytvořil několik testů pro automatické testování funkčnosti projektu.</para>
+    </section>
+    <section>
+        <title>Wiki stránky</title>
+        <para>Na začátku zadání projektů jsem řešil jakou možnost zvolit pro vytvoření wiki stránek. Chtěli jsme, aby se stránka dala lehce upravovat online z prohlížeče. Dálším požadavkem bylo, aby se nemuselo nic instalovat na server což nabízelo většina webů. Vyzkoušel jsem tvorbu wiki na www.wikidot.com, které nebyli přiliš uživatelsky přívětivé narozdíl od wiki stránek na www.github.com, které jsem nakonec zvolil pro wiki projektu. Dálší výhodou bylo že jak kód, tak wiki stránky jsou na jednom místě.</para>
+    </section>
+    <section>
+        <title>Interpret</title>
+        <para>Naše aplikace na výstupu vrátí soubor VoiceXML + gramatiku. Proto jsem v průběhu projektu zkoumal a hledal, jak se dá výstupní soubor (.vxml) interpretovat pomocí nějakého "robota", který využije .vxml soubor pro komunikaci s uživatelem.</para>
+    </section>
+</article>
