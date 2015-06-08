@@ -39,16 +39,16 @@ public class SCXML2VoiceXMLJTest {
     @Test
     public void testCreateFiles() {
         System.out.println("create files");
-        String[] args = {"-i", "src/main/resources/run-data/Registration.scxml", "-s", "src/main/resources/run-data/grammar.scxml", "-v", "src/main/resources/run-data/voicexml.scxml"};
+        String[] args = {"-i", "Registration.scxml", "-s", "grammar.scxml", "-v", "voicexml.scxml"};
         SCXML2VoiceXMLJ.main(args);
        
         try {
-           InputStream is = new FileInputStream(new File("src/main/resources/run-data/grammar.scxml"));
+           InputStream is = new FileInputStream(new File("grammar.scxml"));
         } catch(FileNotFoundException e) {
             fail();
         }
         try {
-            InputStream is = new FileInputStream(new File("src/main/resources/run-data/voicexml.scxml"));
+            InputStream is = new FileInputStream(new File("voicexml.scxml"));
          } catch(FileNotFoundException e) {
              fail();
          }

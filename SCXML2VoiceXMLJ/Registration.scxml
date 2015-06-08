@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:vxml="http://www.w3.org/2001/vxml" version="1.0" initial="Start">
+    <datamodel>
+        <data id="Grammar" expr="./registration.grxml"/>
+    </datamodel>  
+    <state id="Start">
+        <onentry>
+            <vxml:prompt>Welcome to registration system</vxml:prompt>
+        </onentry>
+        <onexit>
+            <vxml:assign name="Start" expr="true"/>
+        </onexit>
+        <transition event="All" target="All" />
+        <transition event="Course" target="Finishing" />
+        <transition event="Finishing" target="Course" />
+    </state>
+    <state id="Finishing">
+        <onentry>
+            <vxml:prompt>Enter a way of termination</vxml:prompt>
+            <vxml:prompt count="2">Options are exam or credit</vxml:prompt>
+        </onentry>
+        <datamodel>
+            <data id="FinishingGrammar" expr="./registration.grxml#ukonceni"/>
+        </datamodel>
+        <transition event="Finishing" target="All"/>
+    </state>
+    <state id="Course">
+        <onentry>
+            <vxml:prompt>Enter course</vxml:prompt>
+
+            <vxml:prompt count="2">Options are PB095, PB125, PB162 or PA156.</vxml:prompt>
+        </onentry>
+        <datamodel>
+            <data id="CourseGrammar" expr="./registration.grxml#predmet"/>
+        </datamodel>
+        <transition event="Course" target="All"/>
+    </state>
+    <state id="All">
+        <onentry>
+            <vxml:prompt>Have you entered <vxml:value expr="Course"/>, terminated with <vxml:value expr="Finishing"/>. Do you agree?</vxml:prompt>
+            <vxml:prompt count="2">Yes or no?</vxml:prompt>
+        </onentry>
+        <datamodel>
+            <data id="yesnoGrammar" expr="./registration.grxml#anone"/>
+        </datamodel>
+        <transition event="ne" target="Start" />
+        <transition event="ano" target="Submit" />
+    </state>
+    <final id="Submit">
+        <onentry>
+            <vxml:submit src="uri" namelist="Course Finishing"/>
+        </onentry>
+    </final>
+</scxml>
