@@ -3,3 +3,4 @@ Projekt do předmětu PB138: Aplikace pro převod konečného automatu popsanéh
 
 [Odkaz na wiki projektu](https://github.com/pdomkar/SCXML2VoiceXMLJ/wiki)
 
+[Prezentace](https://drive.google.com/open?id=134_XIMhKiS0f_YmPDrgEswKpmILneAADn1XgvSHVgPk&authuser=0)
