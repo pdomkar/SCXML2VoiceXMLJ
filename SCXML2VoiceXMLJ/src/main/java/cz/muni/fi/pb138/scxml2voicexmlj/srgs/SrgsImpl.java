@@ -166,6 +166,10 @@ public class SrgsImpl implements Srgs {
                             Node grammarNode = grammarElems.item(0);
                             Element grammar = (Element) grammarNode;
                             
+                            // adapt the grammar element for use in VoiceXML interpreter
+                            grammar.setAttribute("version", "1.0");
+                            grammar.setAttribute("mode", "voice");
+                            
                             // create a trasformer for writing the grammar to a string
                             Transformer transformer = null;
                             try {

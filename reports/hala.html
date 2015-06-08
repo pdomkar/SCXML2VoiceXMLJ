@@ -1,0 +1,60 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>FI PB138 SCXML2VoiceXMLJ</title><link rel="stylesheet" href="docbook.xml.css" type="text/css"><meta name="generator" content="DocBook XSL-NS Stylesheets V1.75.2"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="article" title="FI PB138 SCXML2VoiceXMLJ"><div class="titlepage"><div><div><h2 class="title"><a name="d35e1"></a>FI  PB138  SCXML2VoiceXMLJ</h2></div><div><h3 class="subtitle"><i>Project Report</i></h3></div><div><div class="author"><h3 class="author"><span class="firstname">V&aacute;clav</span> <span class="surname">H&aacute;la</span></h3></div></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="#d35e9">Main design challenges and solutions</a></span></dt><dd><dl><dt><span class="section"><a href="#d35e11">Reference to SRGS Grammar</a></span></dt><dt><span class="section"><a href="#d35e14">Dialogue Navigation</a></span></dt><dt><span class="section"><a href="#d35e17">Field Transformation</a></span></dt></dl></dd><dt><span class="section"><a href="#d35e20">VoiceXML Contents</a></span></dt></dl></div>
+    
+    
+    
+    <p>
+    My task was design and implementation of component for scxml to voicexml
+    transformation (scxml2vxml for short). It is the part of the system whose
+    responsibility is outputing voicexml file containing the dialogue from
+    input scxml file in voicexml format. This component depends on the SRGS
+    grammar extraction/creation component.
+    </p>
+    <div class="section" title="Main design challenges and solutions"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d35e9"></a>Main design challenges and solutions</h2></div></div></div>
+        
+        <div class="section" title="Reference to SRGS Grammar"><div class="titlepage"><div><div><h3 class="title"><a name="d35e11"></a>Reference to SRGS Grammar</h3></div></div></div>
+            
+            <p>
+            Grammar reference can not be obtained from the scxml directly as it is possible that the source scxml file contains inline grammars. 
+            In such case it is responsibility of other parts of the system to extract these grammars into a separate file to which it then
+            provides reference. At any rate, scxml2vxml relies on the client to provide any grammar referrences required and does not handle 
+            parsing of grammar info from the scxml file in any way. Originally XPath was used to to find target fields for these grammar references.
+            Eventually though, after transitioning to jdom2 library, it has been decided to append the referrences as part of transformation of each
+            individual voicexml field at the time of creating it from scxml state. This way the component handles its task in single passage making 
+            it more efficient and easier to maintain as the fields are created atomically.
+            </p>
+        </div>
+        <div class="section" title="Dialogue Navigation"><div class="titlepage"><div><div><h3 class="title"><a name="d35e14"></a>Dialogue Navigation</h3></div></div></div>
+            
+            <p>
+            Since voicexml fields execute in sequential order, information from scxml transitions had to be retained in some way. This was achieved 
+            using the clear voicexml element. Fields are created in same order as the states appear in the input. Already visited states are remembered
+            and every time there is a transition 'backwards', that is to an already visited state, a conditional structure containing the clear is created
+            targeting this state, effectively moving the dialogue backwards to the old field.
+            </p>
+        </div>
+        <div class="section" title="Field Transformation"><div class="titlepage"><div><div><h3 class="title"><a name="d35e17"></a>Field Transformation</h3></div></div></div>
+            
+            <p>                
+            Originally SAX was used to read each individual scxml state, the data was stored in an intermediate format and rendered into a voicexml field
+            using simple DOM API. This approach was later abandoned as most of the code was creating the same structure every time. Moreover the code was 
+            hard to read as it required a lot of boilerplate to create and append elements, set attribute values etc. Thus XSL transformation has been used 
+            instead to create the common skeleton of each field to which dynamic information like grammar reference and navigation control using the clear
+            elements is added from java code.
+            </p>
+        </div>
+    </div> 
+    <div class="section" title="VoiceXML Contents"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d35e20"></a>VoiceXML Contents</h2></div></div></div>
+        
+        <p>
+        Whole dialogue is kept in a single form element. It is split into a series of questions and responses from the user, eoch of these represented
+        by one field element. The first field in the conversation is in special element called initial instead of field, all else remains the same.
+        The field can contain prompt elements which specify what the interpreter should tell to or ask the user. It then contains element filled which
+        specifies what happens when the user provides some input. If there is no input or the input can not be understood by the interpreter, content of
+        noinput and nomatch elements is invoked respectively. In our case default behavior of both nomatch an and noinput is to terminate the dialogue
+        after three unsuccesfull inputs. Further each field can contain referrence to a grammar which is used to match the user input. Lastly the field can
+        contain clear elements to navigate the dialogue as described in the Dialogue Navigation section above.
+        </p>
+    </div>    
+</div></body></html>

@@ -17,6 +17,11 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 /**
@@ -32,7 +37,7 @@ public final class MainCommandLine {
     private static final Logger log = LoggerFactory.getLogger(MainCommandLine.class);
 
     private static final String APP_NAME = "scxml2voicexmlj";
-    private static final String XSD_SCXML = "src/main/resources/scxml-schema/scxml.xsd";
+    private static final String XSD_SCXML = "/scxml-schema/scxml.xsd";
 
     private static final String OPTION_INPUT_SHORT        = "i";
     private static final String OPTION_INPUT_LONG         = "input";
@@ -135,15 +140,13 @@ public final class MainCommandLine {
      */
     private static void validateInputFile(String inputFile) throws IOException, SAXException, InvalidScxmlException {
         File xmlInputFile = new File(inputFile);
-        File schemaFile = new File(XSD_SCXML);
-        String output;
 
         //validation part
         log.debug("opening file '" + xmlInputFile + "'");
         try (InputStream inputStream = new FileInputStream(xmlInputFile)) {
             Source source = new SAXSource(new InputSource(inputStream));
             log.debug("Creating validator");
-            Schema schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(schemaFile);
+            Schema schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(MainCommandLine.class.getResource(XSD_SCXML));
             Validator validator = schema.newValidator();
             try {
                 log.info("validating input file '" + xmlInputFile + "'");
@@ -165,30 +168,19 @@ public final class MainCommandLine {
         }
 
         String outputGrammarFilePath = retval.get(null);
-        if (!outputFile.equals(outputGrammarFilePath)) {
-            OutputStream os;
-            if (outputFile != null) {
-                File f = new File(outputFile);
-                f.getParentFile().mkdirs();
-                f.createNewFile();
-                os = new FileOutputStream(f);
-            } else {
-                os = System.out;
-            }
-
-            if (outputGrammarFilePath != null) { //there is whole file associated
-                StringBuilder sb = new StringBuilder();
-                try (InputStream is = new FileInputStream(outputGrammarFilePath)) {
-                    while (is.available() > 0) {
-                        os.write(is.read());
-                    }
-                }
-                retval.put(null, outputFile);
-            }
-
-            if (!os.equals(System.out)) {
-                os.close();
+        if (outputFile != null) {
+            if (!outputFile.equals(outputGrammarFilePath)) {
+                Files.copy(new File(outputGrammarFilePath).toPath(), new File(outputFile).toPath(), StandardCopyOption.REPLACE_EXISTING);
                 System.out.println("Output stored to " + outputFile);
+            }
+            retval.put(null, outputFile);
+        }
+        else {
+            OutputStream os = System.out;
+            try (InputStream is = new FileInputStream(outputGrammarFilePath)) {
+                while (is.available() > 0) {
+                    os.write(is.read());
+                }
             }
         }
 
@@ -206,21 +198,15 @@ public final class MainCommandLine {
             vxml = component.convert(is, grammars);
         }
 
-        OutputStream os;
         if (outputFile != null) {
-            os = new FileOutputStream(outputFile);
-        }
-        else {
-            os = System.out;
-        }
-        try {
+            try (BufferedWriter out = Files.newBufferedWriter(Paths.get(new File(outputFile).toURI()), StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)){
+                out.write(vxml);
+            }
+            System.out.println("Output stored to " + outputFile);
+        } else {
+            OutputStream os = System.out;
             os.write(vxml.getBytes());
             os.flush();
-        } finally {
-            if (!os.equals(System.out)) {
-                os.close();
-                System.out.println("Output stored to " + outputFile);
-            }
         }
     }
 }

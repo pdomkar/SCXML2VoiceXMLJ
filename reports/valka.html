@@ -1,0 +1,108 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>FI PB138 SCXML2VoiceXMLJ</title><link rel="stylesheet" href="docbook.xml.css" type="text/css"><meta name="generator" content="DocBook XSL-NS Stylesheets V1.75.2"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="article" title="FI PB138 SCXML2VoiceXMLJ"><div class="titlepage"><div><div><h2 class="title"><a name="d4e1"></a>FI PB138 SCXML2VoiceXMLJ</h2></div><div><h3 class="subtitle"><i>Z&aacute;v&#283;re&#269;n&aacute; zpr&aacute;va</i></h3></div><div><div class="author"><h3 class="author"><span class="firstname">Tom&aacute;&#353;</span> <span class="surname">V&aacute;lka</span></h3></div></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="#d4e9">Probl&eacute;m</a></span></dt><dd><dl><dt><span class="section"><a href="#d4e11">U&#382;ivatelsk&eacute; rohran&iacute;</a></span></dt><dt><span class="section"><a href="#d4e14">Form&aacute;ty vstupu a s&eacute;mantika dat</a></span></dt></dl></dd><dt><span class="section"><a href="#d4e18">Postup &#345;e&#353;en&iacute;</a></span></dt><dd><dl><dt><span class="section"><a href="#d4e20">U&#382;ivatelsk&eacute; rozhran&iacute; - &#345;&aacute;dkov&yacute; klient</a></span></dt><dt><span class="section"><a href="#d4e27">Anal&yacute;za zad&aacute;n&iacute; a s&eacute;mantika dat</a></span></dt><dt><span class="section"><a href="#d4e37">N&aacute;vrh architektury a propojen&iacute; komponent</a></span></dt></dl></dd></dl></div>
+    
+    
+    
+    <p>
+        M&yacute;m &uacute;kolem v projektu bylo navrhnout a implementovat u&#382;ivatelsk&eacute; rozhran&iacute;, propojit
+        jednotliv&eacute; komponenty a pomoc p&#345;i organizaci. Tak&eacute; jsem se v&#283;noval konzultaci zp&#367;sobu
+        p&#345;evodu mezi form&aacute;ty vstupn&iacute;ch a v&yacute;stupn&iacute;ch soubor&#367;, zp&#367;sobu reprezentace dialogov&eacute;
+        strategie popsan&eacute; ve zna&#269;kov&aacute;n&iacute; State Chart XML a jej&iacute; p&#345;evod do form&aacute;tu Voice XML.
+    </p>
+    <div class="section" title="Probl&eacute;m"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d4e9"></a>Probl&eacute;m</h2></div></div></div>
+        
+        <div class="section" title="U&#382;ivatelsk&eacute; rohran&iacute;"><div class="titlepage"><div><div><h3 class="title"><a name="d4e11"></a>U&#382;ivatelsk&eacute; rohran&iacute;</h3></div></div></div>
+            
+            <p>
+                Bylo t&#345;eba navrhnout zp&#367;sob jak&yacute;m m&#367;&#382;e u&#382;ivatel komunikovat s t&iacute;mto programem. C&iacute;lem
+                projektu byla pouze koverze z form&aacute;tu SCXML do VoiceXML bez jejich editace.
+                P&#345;edpoklad byl takov&yacute;, &#382;e u&#382;ivatel&eacute; pracuj&iacute;c&iacute; s t&#283;mito zna&#269;kov&aacute;n&iacute;mi pou&#382;&iacute;vaj&iacute; bu&#271;
+                komplexn&iacute; vizualiza&#269;n&iacute; programy pro jejich spr&aacute;vu a interpretaci nebo spravuj&iacute;
+                soubory ru&#269;n&#283;. V prvn&iacute;m p&#345;&iacute;pad&#283; na&#353;e utilita nem&aacute; smysl, v tom druh&eacute;m u&#382;ivatel
+                pracuje na ni&#382;&#353;&iacute; &uacute;rovni se surov&yacute;m souborem, mus&iacute; rozum&#283;t zna&#269;kov&aacute;n&iacute; XML obecn&#283; a
+                pravd&#283;podobn&#283; m&aacute; zku&#353;enosti s p&#345;&iacute;kazov&yacute;m &#345;&aacute;dkem. Proto nen&iacute; t&#345;eba vytv&aacute;&#345;et grafick&eacute;
+                rozhran&iacute;, ale rozhodl jsem se pro utilitu na p&#345;&iacute;kazov&eacute;m &#345;&aacute;dku.
+            </p>
+        </div>
+        <div class="section" title="Form&aacute;ty vstupu a s&eacute;mantika dat"><div class="titlepage"><div><div><h3 class="title"><a name="d4e14"></a>Form&aacute;ty vstupu a s&eacute;mantika dat</h3></div></div></div>
+            
+            <p>
+                Zna&#269;kov&aacute;n&iacute; SCXML je navr&#382;eno pro reprezentaci kone&#269;n&yacute;ch automat&#367;. M&#367;&#382;e v sob&#283; n&eacute;st
+                spoustu dodate&#269;n&yacute;ch informac&iacute;, p&#345;edev&#353;&iacute;m d&iacute;ky elementu <code class="code">&lt;datamodel&gt;
+                </code>, kter&yacute; m&#367;&#382;e obsahovat libovoln&eacute; xml data. Bylo t&#345;eba zjistit pot&#345;ebn&eacute;
+                odpov&iacute;daj&iacute;c&iacute; sekce v obou form&aacute;tech a p&#345;&iacute;padn&#283; nadefinovat jak&yacute;m zp&#367;sobem se budou
+                data p&#345;ed&aacute;vat v datamodelu.
+            </p>
+        </div>
+    </div>
+    <div class="section" title="Postup &#345;e&#353;en&iacute;"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d4e18"></a>Postup &#345;e&#353;en&iacute;</h2></div></div></div>
+        
+        <div class="section" title="U&#382;ivatelsk&eacute; rozhran&iacute; - &#345;&aacute;dkov&yacute; klient"><div class="titlepage"><div><div><h3 class="title"><a name="d4e20"></a>U&#382;ivatelsk&eacute; rozhran&iacute; - &#345;&aacute;dkov&yacute; klient</h3></div></div></div>
+            
+            <p>
+                Pro implementaci jsem zvolil techonologii Apache Command Line Interface. D&#367;vodem
+                byla jednoduchost pou&#382;it&iacute; a jednoduchost implementace tak, aby se co nejv&iacute;ce bl&iacute;&#382;ila
+                zp&#367;sobu, jak&yacute;m funguj&iacute; UNIXov&eacute; utility a programy. Na takov&yacute; zp&#367;sob jsou u&#382;ivatel&eacute;
+                zvykl&iacute; a je p&#345;&iacute;jemn&#283;j&#353;&iacute;. Aplikace m&aacute; jen &#269;ty&#345;i mo&#382;nosti (p&#345;ep&iacute;na&#269;e) - vstupn&iacute;
+                soubor, dva v&yacute;stupn&iacute; a help. Samotn&aacute; aplikace tak&eacute; vy&#382;aduje pouze jeden vstupn&iacute;
+                soubor, kter&yacute; je pak v&yacute;stupem ve dvou souborech, tak&#382;e toto mno&#382;stv&iacute; sta&#269;&iacute;. Do
+                budoucna je aplikace d&iacute;ky pou&#382;it&eacute; technologii lehce roz&#353;i&#345;iteln&aacute; o p&#345;&iacute;padn&eacute; dal&#353;&iacute;
+                p&#345;ep&iacute;na&#269;e.
+            </p>
+            <p>
+                Tato komponenta zparsuje vstupn&iacute; parametry, zvaliduje vstupn&iacute; soubor, jestli se
+                jedn&aacute; o validn&iacute; SCXML a p&#345;ed&aacute; jej komponent&aacute;m pro SRGS gramatiku a VoiceXML.
+                V p&#345;&iacute;pad&#283; SRGS komponenty opravuje drobn&eacute; odchylky od zadan&iacute;. P&#345;i chyb&#283;j&iacute;c&iacute;ch
+                parametrech v&yacute;stupn&iacute;ch soubor&#367; vyp&iacute;&#353;e obsah na konzoli.
+            </p>
+            <p>
+                Jedin&yacute; povinn&yacute; vstupn&iacute; parametr je vstupn&iacute; soubor (parametr <code class="code">-i</code> nebo
+                <code class="code">--input</code>).
+            </p>
+        </div>
+        <div class="section" title="Anal&yacute;za zad&aacute;n&iacute; a s&eacute;mantika dat"><div class="titlepage"><div><div><h3 class="title"><a name="d4e27"></a>Anal&yacute;za zad&aacute;n&iacute; a s&eacute;mantika dat</h3></div></div></div>
+            
+            <p>
+                SCXML reprezentuje kone&#269;n&yacute; automat. VoiceXML sp&iacute;&#353;e reprezentuje vypl&#328;ovan&yacute; formul&aacute;&#345;.
+                Oba dva form&aacute;ty lze zapsat jako kone&#269;n&yacute; automat. Nav&iacute;c VoiceXML m&aacute; v&iacute;ce z&#345;eteln&eacute;
+                (t&eacute;m&#283;&#345;) topologick&eacute; uspo&#345;&aacute;d&aacute;n&iacute;, kde jedin&eacute; zp&#283;tn&eacute; hrany vedou ze stav&#367; odkud je
+                mo&#382;n&eacute; se ve vypl&#328;ov&aacute;n&iacute; formul&aacute;&#345;e vr&aacute;tit a vypl&#328;ovat znovu. Takov&eacute; uspo&#345;&aacute;d&aacute;n&iacute; lze
+                nal&eacute;zt i u SCXML.
+            </p>
+            <p>
+                Gramatiky, kter&eacute; jsou z VoiceXML odkazovan&eacute; nelze nijak nativn&#283; v SCXML popsat.
+                Proto bylo domluveno &#382;e gramatiky je mo&#382;n&eacute; v&#382;dy nal&eacute;zt pouze v datamodelu ve dvou
+                mo&#382;nostech. Bu&#271; bude gramatika p&#345;&iacute;tomna jako odkaz do existuj&iacute;c&iacute;ho souboru, nebo
+                bude gramatika veps&aacute;na jako dce&#345;inn&eacute; elementy p&#345;&iacute;mo v elementu <code class="code">&lt;data&gt;
+                </code>
+            </p>
+            <p>
+                VoiceXML obsahuje <code class="code">&lt;prompt&gt;</code>, kter&yacute; se spou&#353;t&iacute; p&#345;i vstupu do pole
+                a <code class="code">&lt;filled&gt;</code>, kter&yacute; &#345;&iacute;k&aacute;, co se m&aacute; st&aacute;t p&#345;i vypln&#283;n&iacute; pol&iacute;&#269;ka. Tomu
+                odpov&iacute;daj&iacute; elementy <code class="code">&lt;onentry&gt;</code> a <code class="code">&lt;onexit&gt;</code>. Tato
+                funkcionalita je shrnuta v komponent&#283; vytv&aacute;&#345;ej&iacute;c&iacute; soubor s VoiceXML.
+            </p>
+        </div>
+        <div class="section" title="N&aacute;vrh architektury a propojen&iacute; komponent"><div class="titlepage"><div><div><h3 class="title"><a name="d4e37"></a>N&aacute;vrh architektury a propojen&iacute; komponent</h3></div></div></div>
+            
+            <p>
+                Po anal&yacute;ze zbylo navrhnout architekturu aplikace. Fun&#269;nost je rozd&#283;lena do t&#345;&iacute;
+                modul&#367;.
+            </p>
+            <p>
+                Prvn&iacute; modul je pro vytv&aacute;&#345;en&iacute; souboru s VoiceXML. Je z&aacute;visl&yacute; na souboru s gramatikou
+                nebo sp&iacute;&#353;e odkazech na pravidla. Mapov&aacute;n&iacute; pravidel gramatiky na stavy automatu je
+                1:1, proto byla pou&#382;ita klasick&aacute; mapa, kterou vytv&aacute;&#345;&iacute; komponenta pro gramatiky.
+            </p>
+            <p>
+                Druh&yacute; modul je pro gramatiky odkazovan&eacute; ve vstupn&iacute;m souboru s SCXML. Jeho &uacute;kolem je
+                nal&eacute;zt gramatiky, shrnout je v jednom souboru a d&aacute;t k dispozici mapu s odkazy na
+                pravidla.
+            </p>
+            <p>
+                T&#345;et&iacute; modul je p&#345;&iacute;kazov&yacute; &#345;&aacute;dek.
+            </p>
+        </div>
+    </div>
+</div></body></html>

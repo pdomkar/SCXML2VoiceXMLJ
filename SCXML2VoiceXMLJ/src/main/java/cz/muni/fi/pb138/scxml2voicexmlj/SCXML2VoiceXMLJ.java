@@ -28,7 +28,7 @@ public class SCXML2VoiceXMLJ {
     public static void main(String[] args) {
         log.debug("Application started");
         try {
-            //args = new String[]{"-i", "src/test/resources/Registration.scxml", "-s", "src/main/resources/run-data/registration.grxml", "-v", "src/main/resources/run-data/voicexml.vxml"};
+            //args = new String[]{"-i", "src/main/run-data/resources/registration.scxml", "-s", "src/main/resources/run-data/registration.grxml", "-v", "src/main/resources/run-data/voicexml.vxml"};
             MainCommandLine.execute(args);
         } catch (MissingArgumentException e) {
             log.warn("Missing argument", e);
@@ -55,7 +55,6 @@ public class SCXML2VoiceXMLJ {
             log.error("some error occurred", e);
             System.err.println("Error: " + e.getLocalizedMessage());
         }
-        System.out.println("Exiting...");
         log.debug("Application ends");
     }
 
