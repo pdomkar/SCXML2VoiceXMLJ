@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<article>
+    <title>FI PB138 SCXML2VoiceXMLJ</title>
+    <subtitle>Závěrečná zpráva</subtitle>
+    <articleinfo>
+        <author>
+            <firstname>Petr</firstname>
+            <surname>Mejzlík</surname>
+        </author>
+    </articleinfo>
+    <para>
+      Mým úkolem bylo vytvořit komponentu, která poskytne odkazy na SRGS gramatiky ze SCXML souboru tak, 
+      aby je komponenta vytvářející VoiceXML mohla snadno vložit na místa, kam ve VoiceXML souboru patří.
+      Tuto komponentu jsem nazval <firstterm>SRGS komponenta</firstterm>.
+    </para>
+    <section>
+      <title>Návrh</title>
+      <section>
+        <title>Výstup komponenty</title>
+        <para>
+          SCXML soubor obsahuje pro každý stav informaci o jeho gramatice. Také obsahuje informaci 
+          o gramatice celého automatu. Tyto informace je potřeba přenést do formátu VoiceXML. 
+        </para>
+        <para>
+          Jako vhodný výstup SRGS komponenty byla zvolena mapa mapující ID každého stavu na řetězec 
+          odkazující na jeho gramatiku. Odkaz na gramatiku automatu je předán v této mapě pod klíčem 
+          <constant>null</constant>.
+        </para>
+      </section>
+      <section>
+        <title>Činnost komponenty</title>
+        <para>
+          Informace o gramatikách jsou v SCXML souboru uvedené v elementech <code>&lt;data&gt;</code>, 
+          které jsou potomky elementů <code>&lt;datamodel&gt;</code>. Gramatika může být zapsaná dvěma způsoby: 
+        </para>
+        <itemizedlist>
+          <listitem>
+            <para>odkazem - element <code>&lt;data&gt;</code> má atribut <code>expr</code> s hodnotou ve tvaru 
+              <code>soubor.grxml#ruleid</code></para>
+          </listitem>
+          <listitem>
+            <para><firstterm>inline</firstterm> - element <code>&lt;data&gt;</code> nemá atribut <code>expr</code>, 
+              ale je párový a uvnitř má přímo zapsaný element <code>&lt;grammar&gt;</code> představující 
+              gramatiku</para>
+          </listitem>
+        </itemizedlist>
+        <para>
+          U gramatik zapsaných odkazem je situace jednoduchá: do mapy se uloží hodnota atributu <code>expr</code>. 
+          U gramatik zapsaných inline je potřeba vytvořit grXML soubor, gramatiku do něj přenést a do mapy uložit 
+          odkaz na tuto gramatiku v tomto nově vytvořeném grXML souboru. Za tímto účelem se SRGS komponentě musí 
+          předat jako parametr <parameter>grxmlFileNamePrefix</parameter>. Názvy generovaných grXML souborů 
+          se z něj vytváří přidáním pořadového čísla a koncovky <literal>.grxml</literal>.
+        </para>
+      </section>
+    </section>
+    <section>
+      <title>Implementace</title>
+      <section>
+        <title>Testovací data</title>
+        <para>
+          Měli jsme k dispozici ukázkový vstupní SCXML soubor <filename>Registration.scxml</filename> 
+          a k němu náležející grXML soubor <filename>registrace.grxml</filename> obsahující k němu 
+          definice gramatik. Tento SCXML soubor neobsahoval žádné inline gramatiky. Na zkoušení 
+          práce s inline gramatikami bylo tedy nutné vytvořit další testovací data. 
+        </para>
+        <para>
+          Vytvořil jsem dva další SCXML soubory: 
+        </para>
+        <itemizedlist>
+          <listitem>
+            <para><filename>Registration_inlineOneRule.scxml</filename> - sémanticky ekvivalentní 
+              s ukázkovým souborem <filename>Registration.scxml</filename>, ale u některých stavů 
+              je gramatika zapsaná inline, tj. přímo v scxml souboru místo odkazem do externího grXML 
+              souboru. V tomto SCXML souboru platí, že inline jsou zapsané pouze stavy, jejichž gramatika 
+              má jen jedno pravidlo (tzn. obsahuje jen jeden element <code>&lt;rule&gt;</code>).</para>
+          </listitem>
+          <listitem>
+            <para><filename>Registration_inlineMultipleRules.scxml</filename> - stejný, ale obsahující 
+            inline gramatiky s víc než jedním pravidlem.</para>
+          </listitem>
+        </itemizedlist>
+        <para>
+          Jak zacházet s inline gramatikami s víc než jedním pravidlem mi původně nebylo jasné, protože 
+          to vedlo k problému: jak určit, na které z těch několika pravidel se odkázat a které zahrnout 
+          jen proto, že na ně to odkazované dále odkazuje? Tento problém pramenil z mého nesprávného 
+          chápání, jak inline zápis gramatiky vypadá a co vlastně představuje. 
+        </para>
+        <para>
+          Každý element <code>&lt;grammar&gt;</code> představuje jednu gramatiku. Ke každému stavu je v SCXML 
+          uvedená jedna <emphasis>celá</emphasis> gramatika (a to i v případě inline zápisu). ID vybírající 
+          určité pravidlo z gramatiky určuje její <ulink url="http://www.w3.org/TR/speech-grammar/#S4.7">root</ulink>, 
+          Pořád je to odkaz na celou gramatiku, jen je určen její root.
+        </para>
+        <para>Když jsem si toto uvědomil a podle toho opravil testovací data a SRGS komponentu, problém s inline 
+          gramatikami s víc než jedním pravidlem se tím vyřešil. Protože pravidla jsou opravdu sdružena do ucelených 
+          celků (gramatik) představovaných elementy <code>&lt;grammar&gt;</code> a v jednom grXML souboru může být 
+          jen jeden element <code>&lt;grammar&gt;</code>, musel jsem upustit od původního plánu shromáždit všechna 
+          pravidla v inline gramatikách do jediného grXML souboru. Pro každou gramatiku se teď vytváří jeden grXML 
+          soubor. Míchat jich víc do jednoho nejde.
+        </para>
+      </section>
+      <section>
+        <title>Parsování SCXML souboru a přenos gramatik do grXML souborů</title>
+        <para>
+          SCXML soubor parsuju pomocí DOM API. Přenos gramatiky z jednoho souboru do jiného jsem zkoušel několika 
+          způsoby, nakonec jsem našel ideální řešení: vytvořit nový dokument, do něj přenést gramatiku 
+          metodou 
+          <ulink 
+            url="https://docs.oracle.com/javase/8/docs/api/org/w3c/dom/Document.html#importNode-org.w3c.dom.Node-boolean-">Document.importNode</ulink>
+          a pak použít třídu 
+          <ulink 
+            url="https://docs.oracle.com/javase/8/docs/api/javax/xml/transform/Transformer.html">Transformer</ulink> 
+          na převod z DOM na text. Text se zapíše do grXML souboru. Výhodou je, že DOM je možné před zapsáním ještě 
+          snadno upravit, například přidat atributy.
+        </para>
+      </section>
+      <section>
+        <title>Ověření správnosti obsahu vygenerovaných grXML souborů</title>
+        <para>
+          Na automatické ověřování správnosti obsahu vygenerovaných grXML souborů bylo potřeba porovnat 
+          jejich obsah s tím, co v nich očekávám, ne znak po znaku, ale porovnáním XML. K tomuto účelu 
+          jsem použil knihovnu XMLUnit.
+        </para>
+      </section>
+    </section>
+</article>

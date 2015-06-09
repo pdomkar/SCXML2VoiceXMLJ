@@ -1,0 +1,65 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>FI PB138 SCXML2VoiceXMLJ</title><link rel="stylesheet" href="docbook.xml.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="article"><div class="titlepage"><div><div><h2 class="title"><a name="idp5489712"></a>FI PB138 SCXML2VoiceXMLJ</h2></div><div><h3 class="subtitle"><i>Záv&#283;re&#269;ná zpráva</i></h3></div><div><div class="author"><h3 class="author"><span class="firstname">Petr</span> <span class="surname">Mejzlík</span></h3></div></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="#idp31818480">Návrh</a></span></dt><dd><dl><dt><span class="section"><a href="#idp31819168">Výstup komponenty</a></span></dt><dt><span class="section"><a href="#idp31822064">&#268;innost komponenty</a></span></dt></dl></dd><dt><span class="section"><a href="#idp31831792">Implementace</a></span></dt><dd><dl><dt><span class="section"><a href="#idp31832432">Testovací data</a></span></dt><dt><span class="section"><a href="#idp31846464">Parsování SCXML souboru a p&#345;enos gramatik do grXML soubor&#367;</a></span></dt><dt><span class="section"><a href="#idp31850288">Ov&#283;&#345;ení správnosti obsahu vygenerovaných grXML soubor&#367;</a></span></dt></dl></dd></dl></div><p>
+      Mým úkolem bylo vytvo&#345;it komponentu, která poskytne odkazy na SRGS gramatiky ze SCXML souboru tak, 
+      aby je komponenta vytvá&#345;ející VoiceXML mohla snadno vlo&#382;it na místa, kam ve VoiceXML souboru pat&#345;í.
+      Tuto komponentu jsem nazval <em class="firstterm">SRGS komponenta</em>.
+    </p><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp31818480"></a>Návrh</h2></div></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp31819168"></a>Výstup komponenty</h3></div></div></div><p>
+          SCXML soubor obsahuje pro ka&#382;dý stav informaci o jeho gramatice. Také obsahuje informaci 
+          o gramatice celého automatu. Tyto informace je pot&#345;eba p&#345;enést do formátu VoiceXML. 
+        </p><p>
+          Jako vhodný výstup SRGS komponenty byla zvolena mapa mapující ID ka&#382;dého stavu na &#345;et&#283;zec 
+          odkazující na jeho gramatiku. Odkaz na gramatiku automatu je p&#345;edán v této map&#283; pod klí&#269;em 
+          <code class="constant">null</code>.
+        </p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp31822064"></a>&#268;innost komponenty</h3></div></div></div><p>
+          Informace o gramatikách jsou v SCXML souboru uvedené v elementech <code class="code">&lt;data&gt;</code>, 
+          které jsou potomky element&#367; <code class="code">&lt;datamodel&gt;</code>. Gramatika m&#367;&#382;e být zapsaná dv&#283;ma zp&#367;soby: 
+        </p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>odkazem - element <code class="code">&lt;data&gt;</code> má atribut <code class="code">expr</code> s hodnotou ve tvaru 
+              <code class="code">soubor.grxml#ruleid</code></p></li><li class="listitem"><p><em class="firstterm">inline</em> - element <code class="code">&lt;data&gt;</code> nemá atribut <code class="code">expr</code>, 
+              ale je párový a uvnit&#345; má p&#345;ímo zapsaný element <code class="code">&lt;grammar&gt;</code> p&#345;edstavující 
+              gramatiku</p></li></ul></div><p>
+          U gramatik zapsaných odkazem je situace jednoduchá: do mapy se ulo&#382;í hodnota atributu <code class="code">expr</code>. 
+          U gramatik zapsaných inline je pot&#345;eba vytvo&#345;it grXML soubor, gramatiku do n&#283;j p&#345;enést a do mapy ulo&#382;it 
+          odkaz na tuto gramatiku v tomto nov&#283; vytvo&#345;eném grXML souboru. Za tímto ú&#269;elem se SRGS komponent&#283; musí 
+          p&#345;edat jako parametr <em class="parameter"><code>grxmlFileNamePrefix</code></em>. Názvy generovaných grXML soubor&#367; 
+          se z n&#283;j vytvá&#345;í p&#345;idáním po&#345;adového &#269;ísla a koncovky <code class="literal">.grxml</code>.
+        </p></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp31831792"></a>Implementace</h2></div></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp31832432"></a>Testovací data</h3></div></div></div><p>
+          M&#283;li jsme k dispozici ukázkový vstupní SCXML soubor <code class="filename">Registration.scxml</code> 
+          a k n&#283;mu nále&#382;ející grXML soubor <code class="filename">registrace.grxml</code> obsahující k n&#283;mu 
+          definice gramatik. Tento SCXML soubor neobsahoval &#382;ádné inline gramatiky. Na zkou&#353;ení 
+          práce s inline gramatikami bylo tedy nutné vytvo&#345;it dal&#353;í testovací data. 
+        </p><p>
+          Vytvo&#345;il jsem dva dal&#353;í SCXML soubory: 
+        </p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p><code class="filename">Registration_inlineOneRule.scxml</code> - sémanticky ekvivalentní 
+              s ukázkovým souborem <code class="filename">Registration.scxml</code>, ale u n&#283;kterých stav&#367; 
+              je gramatika zapsaná inline, tj. p&#345;ímo v scxml souboru místo odkazem do externího grXML 
+              souboru. V tomto SCXML souboru platí, &#382;e inline jsou zapsané pouze stavy, jejich&#382; gramatika 
+              má jen jedno pravidlo (tzn. obsahuje jen jeden element <code class="code">&lt;rule&gt;</code>).</p></li><li class="listitem"><p><code class="filename">Registration_inlineMultipleRules.scxml</code> - stejný, ale obsahující 
+            inline gramatiky s víc ne&#382; jedním pravidlem.</p></li></ul></div><p>
+          Jak zacházet s inline gramatikami s víc ne&#382; jedním pravidlem mi p&#367;vodn&#283; nebylo jasné, proto&#382;e 
+          to vedlo k problému: jak ur&#269;it, na které z t&#283;ch n&#283;kolika pravidel se odkázat a které zahrnout 
+          jen proto, &#382;e na n&#283; to odkazované dále odkazuje? Tento problém pramenil z mého nesprávného 
+          chápání, jak inline zápis gramatiky vypadá a co vlastn&#283; p&#345;edstavuje. 
+        </p><p>
+          Ka&#382;dý element <code class="code">&lt;grammar&gt;</code> p&#345;edstavuje jednu gramatiku. Ke ka&#382;dému stavu je v SCXML 
+          uvedená jedna <span class="emphasis"><em>celá</em></span> gramatika (a to i v p&#345;ípad&#283; inline zápisu). ID vybírající 
+          ur&#269;ité pravidlo z gramatiky ur&#269;uje její <a class="ulink" href="http://www.w3.org/TR/speech-grammar/#S4.7" target="_top">root</a>, 
+          Po&#345;ád je to odkaz na celou gramatiku, jen je ur&#269;en její root.
+        </p><p>Kdy&#382; jsem si toto uv&#283;domil a podle toho opravil testovací data a SRGS komponentu, problém s inline 
+          gramatikami s víc ne&#382; jedním pravidlem se tím vy&#345;e&#353;il. Proto&#382;e pravidla jsou opravdu sdru&#382;ena do ucelených 
+          celk&#367; (gramatik) p&#345;edstavovaných elementy <code class="code">&lt;grammar&gt;</code> a v jednom grXML souboru m&#367;&#382;e být 
+          jen jeden element <code class="code">&lt;grammar&gt;</code>, musel jsem upustit od p&#367;vodního plánu shromá&#382;dit v&#353;echna 
+          pravidla v inline gramatikách do jediného grXML souboru. Pro ka&#382;dou gramatiku se te&#271; vytvá&#345;í jeden grXML 
+          soubor. Míchat jich víc do jednoho nejde.
+        </p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp31846464"></a>Parsování SCXML souboru a p&#345;enos gramatik do grXML soubor&#367;</h3></div></div></div><p>
+          SCXML soubor parsuju pomocí DOM API. P&#345;enos gramatiky z jednoho souboru do jiného jsem zkou&#353;el n&#283;kolika 
+          zp&#367;soby, nakonec jsem na&#353;el ideální &#345;e&#353;ení: vytvo&#345;it nový dokument, do n&#283;j p&#345;enést gramatiku 
+          metodou 
+          <a class="ulink" href="https://docs.oracle.com/javase/8/docs/api/org/w3c/dom/Document.html#importNode-org.w3c.dom.Node-boolean-" target="_top">Document.importNode</a>
+          a pak pou&#382;ít t&#345;ídu 
+          <a class="ulink" href="https://docs.oracle.com/javase/8/docs/api/javax/xml/transform/Transformer.html" target="_top">Transformer</a> 
+          na p&#345;evod z DOM na text. Text se zapí&#353;e do grXML souboru. Výhodou je, &#382;e DOM je mo&#382;né p&#345;ed zapsáním je&#353;t&#283; 
+          snadno upravit, nap&#345;íklad p&#345;idat atributy.
+        </p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp31850288"></a>Ov&#283;&#345;ení správnosti obsahu vygenerovaných grXML soubor&#367;</h3></div></div></div><p>
+          Na automatické ov&#283;&#345;ování správnosti obsahu vygenerovaných grXML soubor&#367; bylo pot&#345;eba porovnat 
+          jejich obsah s tím, co v nich o&#269;ekávám, ne znak po znaku, ale porovnáním XML. K tomuto ú&#269;elu 
+          jsem pou&#382;il knihovnu XMLUnit.
+        </p></div></div></div></body></html>
